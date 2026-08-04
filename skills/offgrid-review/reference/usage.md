@@ -7,13 +7,13 @@ PyPI distributes the package, and UVX is the recommended runner.
 ## Quickstart
 
 ```bash
-uvx offgrid-review \
+uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --data review-data.json \
   --spec review-spec.json \
   --out review.html
 
 # Write a generic starting spec to a new path.
-uvx offgrid-review \
+uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --write-default-spec \
   --spec my-review-spec.json
 ```
@@ -24,7 +24,7 @@ Send that file to the separate apply pass.
 Generate the checked-in planning-document example from the repository root:
 
 ```bash
-uvx offgrid-review \
+uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --data skills/offgrid-review/examples/review-plan-data.json \
   --spec skills/offgrid-review/examples/review-plan-spec.json \
   --out review-plan.html
@@ -32,8 +32,9 @@ uvx offgrid-review \
 
 This second example uses the same engine, persistence, summary, and export model
 as the queue example. UVX fetches the package on first use and then reuses its
-cached environment. Use `uv tool install offgrid-review` when the command should
-remain installed before a machine goes offline.
+cached environment. After the first PyPI release, use `uvx offgrid-review` or
+`uv tool install offgrid-review` when the command should remain installed before
+a machine goes offline.
 
 ## Workflow
 

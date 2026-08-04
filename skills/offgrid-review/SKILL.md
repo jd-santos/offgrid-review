@@ -11,7 +11,7 @@ description: >-
 version: 1.1.0
 author: jd-santos
 category: workflow
-allowed-tools: Bash(uvx offgrid-review *), Read
+allowed-tools: Bash(uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review *), Read
 ---
 
 # Offgrid Review
@@ -99,15 +99,16 @@ and include title, description, and fallback text.
 ### 3. Generate the console
 
 ```bash
-uvx offgrid-review \
+uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --data review-data.json \
   --spec review-spec.json \
   --out review.html
 ```
 
 See `reference/usage.md` for the quickstart and custom-spec example. The
-published Python package has no third-party runtime dependencies. UVX is the
-recommended acquisition and execution method, not a package dependency.
+Python package has no third-party runtime dependencies. UVX is the recommended
+acquisition and execution method, not a package dependency. Use
+`uvx offgrid-review` after the first PyPI release.
 
 ### 4. Human reviews and exports decisions
 

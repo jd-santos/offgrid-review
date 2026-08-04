@@ -41,10 +41,11 @@ the review begins.
 ## Quick start
 
 With [uv](https://docs.astral.sh/uv/getting-started/installation/) installed,
-run the published command without managing a Python environment:
+run the command without managing a Python environment. Until the first PyPI
+release, UVX can build it directly from the public repository:
 
 ```bash
-uvx offgrid-review \
+uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --data review-data.json \
   --spec review-spec.json \
   --out review.html
@@ -54,8 +55,9 @@ Open `review.html` in a browser. Select one or more compatible actions, add
 notes where needed, and use **Download JSON** to export the result.
 
 Offgrid Review supports Python 3.10 or later and has no third-party runtime
-dependencies. PyPI distributes the package; UVX is the recommended runner, not
-a package dependency. A persistent installation is also available:
+dependencies. PyPI will distribute the first tagged package; UVX is the
+recommended runner, not a package dependency. After the first PyPI release, the invocation shortens to `uvx offgrid-review`.
+A persistent installation will also be available:
 
 ```bash
 uv tool install offgrid-review
@@ -69,12 +71,12 @@ offgrid-review --version
 git clone https://github.com/jd-santos/offgrid-review.git
 cd offgrid-review
 
-uvx offgrid-review \
+uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --data skills/offgrid-review/examples/review-data.json \
   --spec skills/offgrid-review/examples/review-spec.json \
   --out /tmp/offgrid-review.html
 
-uvx offgrid-review \
+uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --data skills/offgrid-review/examples/review-plan-data.json \
   --spec skills/offgrid-review/examples/review-plan-spec.json \
   --out /tmp/offgrid-review-plan.html
