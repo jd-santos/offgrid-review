@@ -153,7 +153,7 @@ with no action remain annotation-only feedback.
 Generate the console with:
 
 ```bash
-python3 review_console.py \
+uvx offgrid-review \
   --data review-data.json \
   --spec review-spec.json \
   --out review.html
