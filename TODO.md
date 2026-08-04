@@ -5,6 +5,7 @@
 ## Up Next
 
 - [ ] Show recommendation provenance and supporting evidence
+- [ ] Add operational risk, reversibility, evidence-strength, and ambiguity signals
 - [ ] Add stale snapshot, invalid data, apply conflict, and recovery states
 - [ ] Audit headings, high-zoom layout, contrast, and screen-reader flow
 - [ ] Add optional per-action confirmation friction
