@@ -29,8 +29,15 @@ classifiers = [
 ]
 dependencies = []
 
+[dependency-groups]
+test = ["playwright>=1.55,<2"]
+
 [project.scripts]
 offgrid-review = "offgrid_review.cli:main"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
 
 [project.urls]
 Homepage = "https://github.com/jd-santos/offgrid-review"
