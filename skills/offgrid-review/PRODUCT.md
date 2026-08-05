@@ -75,13 +75,21 @@ graphs, charts with source tables, sanitized custom SVG, search, filtering,
 keyboard navigation, accessible on-demand help, responsive document contents,
 light and dark themes, responsive mobile actions, review summaries, risk-aware
 pre-export checks,
-local persistence when available, and decision JSON export.
+artifact-scoped local persistence when available, path-aware input validation,
+versioned artifact identity, and decision JSON export.
 
-The implementation is distributed as a Python CLI with embedded HTML, CSS, and
-JavaScript. The package uses only the Python standard library at runtime. PyPI
-provides versioned distribution and UVX is the recommended runner. Generated
-consoles require no server, network access, build process, or third-party
-runtime dependency.
+The implementation is distributed as a Python CLI. Validation, identity,
+queue rendering, document rendering, SVG handling, page assembly, and the
+browser runtime have separate package boundaries. The package uses only the
+Python standard library at runtime. PyPI provides versioned distribution and
+UVX is the recommended runner. Generated consoles require no server, network
+access, build process, or third-party runtime dependency.
+
+The Python generator and aggregate package use GPL-3.0-or-later. Output-facing
+runtime assets and reusable renderer templates also carry Apache-2.0 terms, and
+each generated file embeds the Apache license and notice. This keeps the
+portable handoff artifact separate from the generator's GPL distribution
+boundary.
 
 The generated page is a decision-capture surface. It must not mutate Todoist,
 Obsidian, or any other external system. Applying decisions remains a separate,
@@ -118,9 +126,14 @@ danger. Light and dark themes receive equal support.
 
 ## Evidence on Hand
 
-- `src/offgrid_review/renderer.py`: dependency-free renderer implementation.
 - `src/offgrid_review/cli.py`: argument parsing, file handling, and public
   command behavior.
+- `src/offgrid_review/validation.py`: path-aware data and specification checks.
+- `src/offgrid_review/identity.py`: canonical fingerprints and artifact
+  identity.
+- `src/offgrid_review/rendering/`: queue, document, SVG, and page rendering.
+- `src/offgrid_review/resources/`: Apache-2.0-licensed HTML, CSS, JavaScript,
+  notice, and output license resources.
 - `examples/review-data.json`: example deterministic input data.
 - `examples/review-spec.json`: example review framing and action metadata.
 - `examples/review-plan-data.json` and `examples/review-plan-spec.json`:
@@ -134,8 +147,12 @@ danger. Light and dark themes receive equal support.
 - `tests/test_renderer.py`: checks workbench layout, multi-select and
   single-select behavior, granular annotations, plan renderers, themes, risk
   metadata, summaries, export validation, and the interface contract.
-- `tests/test_cli.py`: checks generation, starter-spec output, version metadata,
-  expected errors, and exit codes.
+- `tests/test_identity.py` and `tests/test_validation.py`: check deterministic
+  identity, input contracts, uniqueness, limits, and failure messages.
+- `tests/browser/test_workbench.py`: checks persistence, stale-state rejection,
+  hostile raw-text data, mobile document review, focus return, and reflow.
+- `tests/test_cli.py`: checks generation, protected starter-spec output, version
+  metadata, expected errors, limits, and exit codes.
 
 There are no user studies, external testimonials, or performance benchmarks on
 hand. Future work must not invent them.

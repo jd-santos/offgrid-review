@@ -8,10 +8,10 @@ description: >-
   one by one in chat. Examples include aligning two systems, inbox triage,
   classification, backlog prioritization, and LLM-authored plan review. The console is read-only by design: it captures decisions, and
   a verified apply pass makes changes later.
-version: 1.1.0
-author: jd-santos
+version: 1.2.0
+author: JD Santos
 category: workflow
-allowed-tools: Bash(uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review *), Read
+allowed-tools: Bash(uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review *), Bash(uvx offgrid-review@* *), Bash(uvx offgrid-review *), Read
 ---
 
 # Offgrid Review
@@ -98,6 +98,8 @@ and include title, description, and fallback text.
 
 ### 3. Generate the console
 
+Until `0.1.0` is published, run the release candidate from Git:
+
 ```bash
 uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --data review-data.json \
@@ -105,18 +107,23 @@ uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --out review.html
 ```
 
-See `reference/usage.md` for the quickstart and custom-spec example. The
-Python package has no third-party runtime dependencies. UVX is the recommended
-acquisition and execution method, not a package dependency. Use
-`uvx offgrid-review` after the first PyPI release.
+This command is temporary. Use `uvx offgrid-review@0.1.0` after the PyPI
+release.
+
+See `reference/usage.md` for the quickstart and custom-spec example. The Python package has no third-party runtime dependencies. UVX is the
+recommended acquisition and execution method, not a package dependency. The
+CLI is tested on macOS and Linux; use WSL rather than native Windows.
 
 ### 4. Human reviews and exports decisions
 
 Open the HTML, inspect the evidence, select every compatible action, and add
 notes at the item, action, plan-section, or document-block level. Complete
-planning documents receive responsive contents navigation automatically. The console stores review state
-in `localStorage` when the viewer allows it and falls back to in-session state
-otherwise. A visible warning tells the reviewer to download before closing.
+planning documents receive responsive contents navigation automatically. The
+console stores review state in `localStorage` when the viewer allows it and
+falls back to in-session state otherwise. Saved state is scoped to a review ID
+and loaded only when its schema and artifact fingerprint match. A visible
+warning explains ignored state or tells the reviewer to download before
+closing.
 
 ### 5. Safe apply pass
 
@@ -145,14 +152,17 @@ Use the exported decision JSON to make changes, following `reference/apply-pass.
 
 ## Pitfalls
 
-- **Keep embedded JSON literal.** The generator neutralizes closing
-  `</script>` sequences; never HTML-entity-escape the `<script
-  type="application/json">` blocks (raw-text script content doesn't decode
-  entities, so `JSON.parse()` fails and every click breaks).
-- **Storage blockers.** Telegram / some iOS / local-file viewers block
-  `localStorage`. Initialization and persistence must stay inside
-  `try`/`catch` so session interactions still work, and the UI must tell the
-  human to download JSON when storage is unavailable.
+- **Keep embedded JSON literal and raw-text safe.** The generator escapes HTML
+  raw-text tokenizer characters as JSON Unicode sequences. Never replace this
+  with HTML entity encoding inside `<script type="application/json">`; raw-text
+  script content does not decode entities, so `JSON.parse()` fails.
+- **Storage blockers.** Telegram, some iOS viewers, and local-file viewers block
+  `localStorage`. Initialization and persistence must stay inside `try`/`catch`
+  so session interactions still work, and the UI must tell the human to
+  download decisions when storage is unavailable.
+- **Handoff files contain source snapshots.** Anyone who receives the HTML or
+  exported decisions can inspect the embedded review data. Never include
+  secrets or unrelated private fields.
 - **Don't drift into an apply surface.** If you find the console "just applying"
   a change, stop. That belongs in the apply pass, gated by the exported
   decisions.

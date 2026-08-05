@@ -2,7 +2,11 @@
 
 The `offgrid-review` Python CLI uses only the standard library at runtime. It
 writes one offline HTML file with embedded styles, behavior, and review data.
-PyPI distributes the package, and UVX is the recommended runner.
+UVX is the recommended runner.
+
+Until `0.1.0` is published, use the temporary Git-source command below. After
+publication, replace the `uvx --from ... offgrid-review` prefix with
+`uvx offgrid-review@0.1.0`.
 
 ## Quickstart
 
@@ -18,8 +22,16 @@ uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --spec my-review-spec.json
 ```
 
+`--write-default-spec` refuses to replace an existing file. Add `--force` only
+when replacement is intentional.
+
 Open `review.html`, record decisions, then download or copy the exported JSON.
 Send that file to the separate apply pass.
+
+The CLI validates both inputs before writing HTML. Queue items need stable IDs,
+action and block IDs must be unique in their scopes, conflict references must
+resolve, and queue sources must be arrays. Expected failures return exit code 2
+with JSON-path errors instead of a traceback. Each input file has a 25 MB limit.
 
 Generate the checked-in planning-document example from the repository root:
 
@@ -32,9 +44,9 @@ uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
 
 This second example uses the same engine, persistence, summary, and export model
 as the queue example. UVX fetches the package on first use and then reuses its
-cached environment. After the first PyPI release, use `uvx offgrid-review` or
-`uv tool install offgrid-review` when the command should remain installed before
-a machine goes offline.
+cached environment. Use `uv tool install offgrid-review` when the command
+should remain installed before a machine goes offline. The CLI is tested on
+macOS and Linux. Native Windows is not supported; use WSL instead.
 
 ## Workflow
 
@@ -55,6 +67,7 @@ Actions are multi-select by default:
 ```json
 {
   "title": "My Review",
+  "review_id": "my-review",
   "subtitle": "Review proposed changes. Nothing is applied from this page.",
   "global_actions": [
     {
@@ -317,6 +330,11 @@ risk, and red for validation errors or urgent danger.
 
 ## Summary and export
 
+Each export identifies the schema version, generator version, review ID, source
+data fingerprint, specification fingerprint, and combined artifact
+fingerprint. The apply pass should reject an unsupported schema and use the
+fingerprints when deciding whether source data is stale.
+
 The summary reports:
 
 - Resolved and unresolved items.
@@ -335,7 +353,10 @@ selection, `action` and `label` are also populated for older apply scripts.
 
 ## Optional top-level keys
 
-- `storage_key`: browser storage key override.
+- `review_id`: stable namespace for browser state and exported decisions. When
+  omitted, the generator derives it from the title.
+- `storage_key`: browser storage namespace override. The generator appends the
+  schema version and review ID.
 - `download_prefix`: downloaded filename prefix.
 - `note_label`: item-note label.
 - `agent_help`: short visible workflow instruction.
@@ -356,6 +377,10 @@ selection, `action` and `label` are also populated for older apply scripts.
 - `empty`: empty-queue message.
 
 ## File-viewer constraints
+
+The generated HTML and decision JSON contain complete source snapshots,
+including values hidden behind disclosures. Anyone who receives either file can
+inspect those values. Do not include secrets or unrelated private data.
 
 Some Telegram, iOS, and local-file viewers block `localStorage` or clipboard
 access. The console catches those failures, keeps the current session usable,
