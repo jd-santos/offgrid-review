@@ -41,8 +41,7 @@ the review begins.
 ## Quick start
 
 With [uv](https://docs.astral.sh/uv/getting-started/installation/) installed,
-run the command without managing a Python environment. Until the first PyPI
-release, UVX can build it directly from the public repository:
+run the current release candidate directly from the public repository:
 
 ```bash
 uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
@@ -51,13 +50,16 @@ uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --out review.html
 ```
 
-Open `review.html` in a browser. Select one or more compatible actions, add
-notes where needed, and use **Download JSON** to export the result.
+This Git-source command is temporary while `0.1.0` is prepared. After the PyPI
+release, use `uvx offgrid-review@0.1.0` instead.
 
-Offgrid Review supports Python 3.10 or later and has no third-party runtime
-dependencies. PyPI will distribute the first tagged package; UVX is the
-recommended runner, not a package dependency. After the first PyPI release, the invocation shortens to `uvx offgrid-review`.
-A persistent installation will also be available:
+Open `review.html` in a browser. Select one or more compatible actions, add
+notes where needed, and use **Download decisions** to export the JSON result.
+
+Offgrid Review supports Python 3.10 or later, is tested on macOS and Linux, and
+has no third-party runtime dependencies. Native Windows is not supported; use
+WSL when needed. UVX is the recommended runner, not a package dependency. A
+persistent installation is also available:
 
 ```bash
 uv tool install offgrid-review
@@ -116,6 +118,10 @@ The data, review specification, interface, styles, and behavior are embedded in
 one HTML file. It can move through chat, email, shared storage, or removable
 media without bringing an application server with it.
 
+Anyone who receives the HTML or exported decisions can inspect the embedded
+source snapshots, including fields hidden behind disclosures. Do not put
+secrets or unrelated private data into review inputs.
+
 ### Review and apply stay separate
 
 The browser page is a decision-capture surface. It cannot mutate the system
@@ -124,6 +130,10 @@ requires implementations to re-fetch current state, detect stale data, and act
 only on explicitly approved decisions.
 
 ### Structure replaces conversational ambiguity
+
+Each artifact and export carries a schema version, generator version, review
+ID, and deterministic data and specification fingerprints. Browser state is
+loaded only when it belongs to the current artifact.
 
 Actions, risk, reversibility, rationale, conflicts, completion state, and
 annotations remain machine-readable. Compatible actions use multi-select by
@@ -178,17 +188,26 @@ reach the generated page.
 
 ## Roadmap
 
-Near-term work includes recommendation provenance, stale-snapshot handling,
-decision import, accessibility review, and validated `npx skills` installation.
+Near-term work includes recommendation provenance, decision import, apply-pass
+fingerprints, and validated `npx skills` installation.
 See [TODO.md](https://github.com/jd-santos/offgrid-review/blob/main/TODO.md) for the current list.
 
 ## Development
 
-Create the locked development environment and run the regression suite:
+Create the locked development environment and run the Python regression suite:
 
 ```bash
 uv sync --locked
 uv run python -m unittest discover -s tests -p 'test_*.py'
+```
+
+Run the focused browser regressions separately:
+
+```bash
+uv sync --locked --group test
+uv run --group test playwright install chromium
+uv run --group test python -m unittest discover -s tests/browser -p 'test_*.py'
+uv run python scripts/check_runtime_syntax.py
 ```
 
 Build the wheel and source distribution:
@@ -211,4 +230,9 @@ location.
 
 ## License
 
-Offgrid Review is licensed under GPL-3.0-or-later. See [LICENSE](LICENSE).
+The Python generator and package aggregate are licensed under
+[GPL-3.0-or-later](https://github.com/jd-santos/offgrid-review/blob/main/LICENSE).
+The generated HTML runtime, styles, and reusable output templates are licensed
+under [Apache-2.0](https://github.com/jd-santos/offgrid-review/blob/main/LICENSES/Apache-2.0.txt).
+Each portable HTML file carries the Apache license and notice required for
+redistribution.
