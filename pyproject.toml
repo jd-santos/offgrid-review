@@ -9,12 +9,14 @@ description = "Build single-file offline workbenches for structured review and d
 readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "LICENSES/*", "NOTICE"]
+authors = [{ name = "JD Santos" }]
 keywords = ["agent", "cli", "human-in-the-loop", "offline", "review"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
-  "Operating System :: OS Independent",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.10",
