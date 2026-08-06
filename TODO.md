@@ -8,7 +8,7 @@
   - [ ] Decide when the candidate is ready to publish
   - [ ] Configure the protected GitHub `pypi` environment
   - [ ] Register the pending PyPI Trusted Publisher
-  - [ ] Confirm the hardened CI workflow succeeds on `main`
+  - [x] Confirm the hardened CI workflow succeeds on `main`
   - [ ] Replace temporary Git-source commands with versioned PyPI commands
   - [ ] Publish GitHub release `v0.1.0`
   - [ ] Verify `uvx offgrid-review@0.1.0` from PyPI
