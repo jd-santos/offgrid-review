@@ -156,7 +156,8 @@ with no action remain annotation-only feedback.
 
 ## 3. Static HTML console
 
-Generate the console from Git while `0.1.0` is being prepared:
+After creating the data and specification described above, generate the console
+from Git while `0.1.0` is being prepared:
 
 ```bash
 uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
@@ -165,7 +166,8 @@ uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
   --out review.html
 ```
 
-This command is temporary. Use `uvx offgrid-review@0.1.0` after publication.
+This Git-source command is temporary. Use `uvx offgrid-review` after
+publication. Exact version pins are only needed for reproducibility.
 
 Properties:
 
@@ -235,9 +237,9 @@ Example export:
 ```
 
 `schema_version` identifies the decision contract. `generator_version` records
-the package that produced it. The data and specification fingerprints are SHA-256 hashes of canonical JSON
-using sorted object keys, UTF-8, no insignificant whitespace, and non-ASCII
-characters left literal. `artifact_fingerprint` hashes a canonical object
+the package that produced it. The data and specification fingerprints are
+SHA-256 hashes of canonical JSON using sorted object keys, UTF-8, no
+insignificant whitespace, and non-ASCII characters left literal. `artifact_fingerprint` hashes a canonical object
 containing `schema_version`, `data_fingerprint`, and `spec_fingerprint`. An
 apply implementation must reject unsupported schemas instead of guessing.
 

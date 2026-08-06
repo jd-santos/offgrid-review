@@ -27,6 +27,11 @@ This project does not currently declare a Semantic Versioning policy.
 
 ### Changed
 
+- Reframe the public quick start around the agent-to-human review workflow and
+  use checked-in inputs for runnable CLI examples.
+- Reserve exact UVX version pins for reproducibility, use the unversioned PyPI
+  command after publication, and distinguish macOS manual testing from Ubuntu
+  CI coverage.
 - Split validation, identity, queue rendering, document rendering, SVG handling,
   page assembly, and browser resources into separate package boundaries.
 - Require stable source item IDs and prefer those IDs over mutable paths when
@@ -40,8 +45,8 @@ This project does not currently declare a Semantic Versioning policy.
 - Rename reviewer-facing JSON actions to **Download decisions**, **Copy
   decisions**, and **Preview decisions** while retaining JSON as the exchange
   format.
-- Keep the agent skill as the discovery and workflow layer while the published
-  CLI owns deterministic execution.
+- Keep the agent skill as the discovery and workflow layer while the CLI package
+  owns deterministic execution.
 
 ### Fixed
 

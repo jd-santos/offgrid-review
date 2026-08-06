@@ -9,7 +9,7 @@
   - [ ] Configure the protected GitHub `pypi` environment
   - [ ] Register the pending PyPI Trusted Publisher
   - [x] Confirm the hardened CI workflow succeeds on `main`
-  - [ ] Replace temporary Git-source commands with versioned PyPI commands
+  - [ ] Replace temporary Git-source commands with `uvx offgrid-review`
   - [ ] Publish GitHub release `v0.1.0`
   - [ ] Verify `uvx offgrid-review@0.1.0` from PyPI
   - [ ] Sync the published skill and tested package contract into Dotfiles
@@ -21,7 +21,6 @@
 - [ ] Add operational risk, reversibility, evidence-strength, and ambiguity signals
 - [ ] Add optional per-action confirmation friction
 - [ ] Import decision JSON with schema and snapshot compatibility checks
-- [ ] Validate and document `npx skills` installation
 
 ## Backlog
 

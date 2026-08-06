@@ -26,8 +26,9 @@ remain mandatory either way.
 1. Update `project.version` in `pyproject.toml`.
 2. Run `uv lock` so `uv.lock` records the same version.
 3. Move relevant entries from `Unreleased` into a matching changelog release.
-4. Confirm README, skill, and usage examples use the intended versioned PyPI
-   command rather than a mutable Git branch.
+4. Replace temporary Git-source commands in the README, skill, and usage guide
+   with the unversioned `uvx offgrid-review` command. Keep exact version pins
+   only in release verification examples.
 5. Run the supported-Python and browser tests, then build:
 
    ```bash
