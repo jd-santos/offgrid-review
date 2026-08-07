@@ -1,6 +1,6 @@
 ---
 name: Offgrid Review
-description: A restrained review workbench for structured human judgment
+description: A restrained review console for structured human judgment
 colors:
   canvas-light: "#f8f6f7"
   surface-light: "#ffffff"
@@ -131,7 +131,7 @@ light palette.
 Display headings use Georgia, with Times New Roman and DejaVu Serif as broad
 offline fallbacks. The serif appears on the product title, queue titles, item
 titles, document headings, plan sections, summary title, and reviewed evidence
-values. It gives the workbench a distinct editorial voice without changing the
+values. It gives the console a distinct editorial voice without changing the
 form controls.
 
 Operational questions and action labels keep Trebuchet MS, then Segoe UI and
@@ -263,7 +263,7 @@ scaling instead of being clipped.
 
 ## Accessibility
 
-WCAG 2.2 AA is the target for generated workbenches. Every pass must preserve:
+WCAG 2.2 AA is the target for generated consoles. Every pass must preserve:
 
 - A skip link, named landmarks, ordered headings, and explicit accessible names.
 - Native controls, fieldset legends, adjacent instructions, and text state that

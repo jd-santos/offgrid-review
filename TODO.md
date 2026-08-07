@@ -38,7 +38,9 @@
 
 ## Done
 
-- [x] Redesign generated workbench hierarchy and accessibility (search-first
+- [x] Align documentation around console terminology and add planning, queue,
+  comparison, and mobile examples
+- [x] Redesign generated console hierarchy and accessibility (search-first
   navigation, note completion, WCAG checks, docs, and screenshots)
 - [x] Rearchitect and harden the pre-PyPI package, artifact contract, browser
   runtime, validation, accessibility, licensing, tests, and release automation

@@ -52,7 +52,7 @@ class ReviewConsoleRenderTests(unittest.TestCase):
                     "title": "Review navigation",
                     "status": "pending",
                     "priority": "high",
-                    "description": "Check the workbench behavior.",
+                    "description": "Check the console behavior.",
                 }
             ],
         }
@@ -60,7 +60,7 @@ class ReviewConsoleRenderTests(unittest.TestCase):
     def render(self) -> str:
         return review_console.render_html(self.data, self.spec)
 
-    def test_renders_workbench_navigation_and_accessibility_structure(self) -> None:
+    def test_renders_console_navigation_and_accessibility_structure(self) -> None:
         output = self.render()
 
         for marker in (
@@ -164,15 +164,24 @@ class ReviewConsoleRenderTests(unittest.TestCase):
             'id="summaryPanel"',
             'id="summaryBody"',
             'id="summaryWarning"',
-            'id="summaryTrigger" aria-expanded="false" aria-controls="summaryPanel"',
-            'aria-labelledby="summaryTitle" hidden',
+            'id="summaryTrigger"',
+            'aria-controls="summaryPanel"',
+            'aria-labelledby="summaryTitle"',
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, output)
+        self.assertRegex(
+            output,
+            r'id="summaryTrigger"[^>]*aria-expanded="false"[^>]*aria-controls="summaryPanel"',
+        )
+        self.assertRegex(
+            output,
+            r'id="summaryPanel"[^>]*aria-labelledby="summaryTitle"[^>]*hidden',
+        )
         self.assertNotIn('aria-modal="true"', output)
         self.assertNotIn("innerHTML", output)
 
-    def test_applies_confirmed_palette_and_surviving_direction_contract(self) -> None:
+    def test_applies_confirmed_palette_and_theme_contract(self) -> None:
         output = self.render()
 
         for marker in (
@@ -181,16 +190,15 @@ class ReviewConsoleRenderTests(unittest.TestCase):
             "--accent: #7a2e4d",
             "--canvas: #171316",
             "--accent: #f0a9c0",
-            '--font-heading: "Trebuchet MS"',
+            "--font-heading:",
             "--font-display: Georgia",
             "font-weight: 700",
             'data-theme="light"',
             'data-theme="dark"',
-            "shape-pinned-review-workbench-v1",
-            "unreviewed and undocumented is unfinished",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, output)
+        self.assertIn('"Trebuchet MS"', output)
 
     def test_theme_tokens_meet_text_and_control_contrast(self) -> None:
         output = self.render()
@@ -386,6 +394,17 @@ class ReviewConsoleRenderTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, output)
 
+    def test_queue_demo_uses_one_clear_title_for_matching_records(self) -> None:
+        data = load_example("review-data.json")
+        spec = load_example("review-spec.json")
+
+        output = review_console.render_html(data, spec)
+
+        self.assertIn(">Order workshop supplies</h3>", output)
+        self.assertNotIn("Order workshop supplies compared with", output)
+        self.assertIn("Project board status", output)
+        self.assertIn("Task list status", output)
+
     def test_renders_sanitized_custom_svg_and_preserves_fallback(self) -> None:
         self.spec["blocks"] = [
             {
@@ -440,7 +459,10 @@ class ReviewConsoleRenderTests(unittest.TestCase):
         self.assertIn('aria-label="About this review"', output)
         self.assertIn('role="tooltip"', output)
         self.assertIn('class="header-link"', output)
-        self.assertIn('>Summary</button>', output)
+        self.assertRegex(
+            output,
+            r'<button[^>]*id="summaryTrigger"[^>]*>\s*Summary\s*</button>',
+        )
         self.assertNotIn('Review only', output)
         self.assertNotIn('class="read-only-mark"', output)
         self.assertNotIn('<p class="subtitle">', output)
@@ -460,6 +482,8 @@ class ReviewConsoleRenderTests(unittest.TestCase):
         output = self.render()
         identity = artifact_identity(self.data, self.spec)
 
+        for stale_note in ("THESIS:", "OWN-WORLD:", "shape-pinned-review"):
+            self.assertNotIn(stale_note, output)
         self.assertIn('"schema_version": 1', output)
         self.assertIn(identity["artifact_fingerprint"], output)
         self.assertIn("SPDX-License-Identifier: Apache-2.0", output)
@@ -479,8 +503,8 @@ class ReviewConsoleRenderTests(unittest.TestCase):
             "id='tocLauncher'",
             "aria-label='Open document contents'",
             "id='tocDrawer'",
-            "href='#plan-review-overview'",
-            "data-toc-target='plan-review-direction'",
+            "href='#community-workshop-overview'",
+            "data-toc-target='community-workshop-final-decision'",
             "aria-label='Document contents'",
         ):
             with self.subTest(marker=marker):

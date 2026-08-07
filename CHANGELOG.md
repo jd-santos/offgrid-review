@@ -24,18 +24,22 @@ This project does not currently declare a Semantic Versioning policy.
   collection limits, and reserved export fields.
 - Add focused browser regressions for persistence, regenerated artifacts,
   hostile raw-text data, mobile document review, focus return, and text reflow.
-- Add generated desktop and mobile screenshots with a standard-library capture
-  script.
+- Add generated desktop, focused-module, and mobile screenshots with a
+  standard-library capture script.
 - Add a WCAG 2.2 AA accessibility contract, contrast checks, target-size checks,
   keyboard regressions, and a manual release checklist.
 
 ### Changed
 
+- Replace self-referential demo content with a community workshop plan, launch
+  decisions, and two-record reconciliation examples.
+- Standardize **console** as the product term across public guidance, package
+  metadata, and maintainer contracts.
 - Reorder decision-batch navigation around search, completion filters, and
   incomplete-decision movement before overall and per-queue progress.
 - Remove duplicate header progress and review-status text, reduce summary
   emphasis, and use complete or needs-a-decision language throughout the
-  generated workbench.
+  generated console.
 - Count a substantive decision note as a complete response when no supplied
   action fits. Note-only responses still export as annotations and never as
   approved actions.
@@ -64,6 +68,8 @@ This project does not currently declare a Semantic Versioning policy.
 
 ### Fixed
 
+- Remove stale design-process notes from generated HTML and avoid repeating an
+  identical title in two-record comparison headings.
 - Replace bare character shortcuts with modifier shortcuts so review navigation
   does not interfere with assistive technology or text input.
 - Add a skip link, named decision regions, live completion semantics, current
@@ -82,5 +88,5 @@ This project does not currently declare a Semantic Versioning policy.
 ### Added
 
 - Add the standard-library offline review generator and agent skill.
-- Add the first review workbench interface, artifact documentation, product
+- Add the first review console interface, artifact documentation, product
   contract, and design contract.

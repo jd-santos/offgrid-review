@@ -25,11 +25,16 @@ uvx --from . offgrid-review \
 Open either HTML file, record decisions, then download or copy the exported
 JSON. Send that file to the separate apply pass.
 
-The first example is a decision batch. The second is a complete document review.
-Both use the same persistence, summary, validation, and export model. The CLI is
-developed and manually tested on macOS. CI exercises Ubuntu, but broader Linux
-compatibility and WSL have not been manually verified. Native Windows is
-unsupported.
+The first example reviews community-workshop launch tasks and reconciles two
+records side by side. The second reviews a complete event plan with tables,
+flows, a timeline, a dependency graph, a chart, and a final decision. Both use
+the same persistence, validation, summary, and export model.
+
+## Platform support
+
+The CLI requires Python 3.10 or later. It is developed and manually tested on
+macOS. CI exercises Ubuntu, but broader Linux compatibility and WSL have not
+been manually verified. Native Windows is unsupported.
 
 ## Workflow
 
@@ -104,7 +109,7 @@ The data JSON needs a matching source key:
 ```
 
 Save those objects as `review-spec.json` and `review-data.json`, then generate
-the workbench from the current GitHub release candidate:
+the console from the current GitHub release candidate:
 
 ```bash
 uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
@@ -126,9 +131,10 @@ replace an existing specification unless you pass `--force`.
 
 After the first PyPI release, replace the Git-source prefix with
 `uvx offgrid-review`. UVX selects the latest available version on its first
-invocation and then reuses its cached environment. Use
-`--refresh-package offgrid-review` when you explicitly want it to check for a
-newer package.
+invocation and then reuses its cached environment. Run
+`uvx --refresh-package offgrid-review offgrid-review --version` when you want
+it to check for a newer package. Exact pins such as `offgrid-review@0.1.0` are
+reserved for reproducibility and release verification.
 
 The CLI validates both inputs before writing HTML. Queue items need stable IDs,
 action and block IDs must be unique in their scopes, conflict references must
@@ -183,14 +189,10 @@ Conflicts remain visible and make the export invalid until corrected.
 
 ## Action metadata
 
-Actions support:
-
-- `description`: visible explanation under the label.
-- `risk`: `low`, `medium`, or `high`.
-- `reversible`: boolean.
-- `requires_note`: require item-level or action-level rationale.
-- `exclusive`: clear other selections when chosen.
-- `conflicts_with`: action IDs that cannot coexist.
+Use `description` to explain an action's effect. `risk` and `reversible` expose
+operational consequences before selection. `requires_note` collects rationale,
+while `exclusive` and `conflicts_with` define which choices may coexist. The
+[artifact contract](artifact-contract.md) defines each field.
 
 High-risk and irreversible actions use a muted plum risk treatment. Risk never
 uses the blush selection color. Red remains reserved for validation errors and
@@ -345,7 +347,7 @@ complete document demo.
 
 ## Review navigation
 
-The workbench includes:
+The console includes:
 
 - Search over titles, evidence, and action labels.
 - Queue and completion filters.
@@ -363,7 +365,7 @@ The workbench includes:
 
 Native controls, a skip link, visible focus, semantic field grouping, live
 status messages, 24 CSS-pixel targets, 200 percent text reflow, and
-reduced-motion support are built in. Generated workbenches target WCAG 2.2 AA;
+reduced-motion support are built in. Generated consoles target WCAG 2.2 AA;
 manual assistive-technology checks remain part of release validation.
 
 ## Themes
@@ -396,30 +398,11 @@ apply pass cannot mistake a partial or invalid review for a clean one.
 `actions` is the canonical selected-action array. When there is exactly one
 selection, `action` and `label` are also populated for older apply scripts.
 
-## Optional top-level keys
+## Complete field reference
 
-- `review_id`: stable namespace for browser state and exported decisions. When
-  omitted, the generator derives it from the title.
-- `storage_key`: browser storage namespace override. The generator appends the
-  schema version and review ID.
-- `download_prefix`: downloaded filename prefix.
-- `note_label`: label for the decision note beside the action options.
-- `agent_help`: short visible workflow instruction.
-- `document_id`, `document_title`, `document_description`: planning-document
-  framing.
-- `blocks`: semantic document sections.
-- `payload_meta`: static fields merged into the export.
-- `language`: HTML language code.
-
-## Optional queue keys
-
-- `question`: decision prompt.
-- `selection_mode`: `multiple` or `single`.
-- `selection_hint`: help under the prompt.
-- `detail_keys`: item fields to render.
-- `primary_keys`: fields visible before supporting details expand.
-- `side_labels`: labels for two-record comparisons.
-- `empty`: empty-queue message.
+The [artifact contract](artifact-contract.md) is the authoritative reference for
+all data, specification, block, action, storage, and export fields. This guide
+focuses on choosing those fields and using the generated console.
 
 ## File-viewer constraints
 

@@ -5,7 +5,7 @@ build-backend = "uv_build"
 [project]
 name = "offgrid-review"
 version = "0.1.0"
-description = "Build single-file offline workbenches for structured review and decisions."
+description = "Build single-file offline consoles for structured review and decisions."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"

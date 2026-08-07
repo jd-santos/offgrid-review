@@ -31,6 +31,8 @@ def item_title(item: Any, detail_keys: list[str]) -> str:
             or item[1].get("id")
             or "?"
         )
+        if str(left).strip().casefold() == str(right).strip().casefold():
+            return str(left)
         return f"{left} compared with {right}"
     return "Review item"
 

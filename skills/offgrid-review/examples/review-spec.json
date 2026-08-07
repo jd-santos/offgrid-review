@@ -1,138 +1,93 @@
 {
-  "title": "Offgrid Review",
-  "review_id": "queue-example",
-  "subtitle": "Review the evidence, select compatible actions or add decision notes, and export decision JSON. Nothing is changed from this page.",
+  "title": "Community Workshop Review",
+  "review_id": "community-workshop-review",
+  "subtitle": "Review launch tasks, align duplicate records, and return decisions without changing either source.",
   "global_actions": [
     {
       "id": "defer",
       "label": "Defer for later",
-      "description": "Leave the item for a future review.",
+      "description": "Leave this item for a future review.",
       "exclusive": true
     },
     {
-      "id": "needs_human",
-      "label": "Needs another reviewer",
-      "description": "Route the item to a person with more context.",
-      "exclusive": true
-    },
-    {
-      "id": "ignore",
-      "label": "No action needed",
-      "description": "Record that the item was reviewed without follow-up.",
+      "id": "needs_owner",
+      "label": "Needs owner input",
+      "description": "Ask the named owner for context before making a change.",
       "exclusive": true
     }
   ],
   "queues": [
     {
-      "id": "pending_decisions",
-      "title": "Pending decisions",
-      "description": "Decide which proposals move forward, need changes, or require follow-up.",
-      "source": "pending_items",
-      "empty": "Nothing to review in this queue.",
-      "question": "Which actions should be taken?",
+      "id": "launch_tasks",
+      "title": "Launch tasks",
+      "description": "Check the work that must be ready before registration opens.",
+      "source": "launch_items",
+      "empty": "No launch tasks need review.",
+      "question": "Which actions should be taken before launch?",
       "selection_mode": "multiple",
-      "detail_keys": [
-        "status",
-        "priority",
-        "due",
-        "labels",
-        "path",
-        "description"
-      ],
-      "primary_keys": ["status", "priority", "due"],
+      "detail_keys": ["status", "owner", "due", "summary"],
+      "primary_keys": ["status", "owner", "due"],
       "actions": [
         {
-          "id": "accept",
-          "label": "Accept the proposal",
-          "description": "Carry the proposed values into the apply pass.",
+          "id": "approve",
+          "label": "Approve for launch",
+          "description": "Keep the task as written and move it into the launch plan.",
           "risk": "low",
           "reversible": true,
-          "conflicts_with": ["needs_changes"]
+          "conflicts_with": ["revise"]
         },
         {
-          "id": "needs_changes",
+          "id": "revise",
           "label": "Request changes",
-          "description": "Keep the item open and describe the required edits.",
+          "description": "Return the task to its owner with specific revisions.",
           "risk": "low",
           "reversible": true,
           "requires_note": true,
-          "conflicts_with": ["accept"]
+          "conflicts_with": ["approve"]
         },
         {
           "id": "add_follow_up",
           "label": "Add a follow-up",
-          "description": "Create a separate follow-up after the main decision.",
+          "description": "Keep this task and capture related work separately.",
           "risk": "low",
           "reversible": true
-        },
-        {
-          "id": "close",
-          "label": "Close permanently",
-          "description": "Close and archive the linked item.",
-          "risk": "high",
-          "reversible": false,
-          "requires_note": true,
-          "exclusive": true
         }
       ]
     },
     {
-      "id": "review_backlog",
-      "title": "Review backlog",
-      "description": "This queue demonstrates an explicitly exclusive decision.",
-      "source": "backlog_items",
-      "empty": "No backlog items to review.",
-      "question": "What is the backlog outcome?",
+      "id": "record_mismatches",
+      "title": "Record mismatches",
+      "description": "Choose how the project board and task list should agree.",
+      "source": "record_pairs",
+      "empty": "The project records already match.",
+      "question": "How should these records be aligned?",
       "selection_mode": "single",
-      "detail_keys": ["state", "priority", "url", "type"],
-      "primary_keys": ["state", "priority"],
+      "selection_hint": "Choose the source that should become authoritative, or describe a different result.",
+      "side_labels": ["Project board", "Task list"],
+      "detail_keys": ["status", "priority", "due", "owner"],
+      "primary_keys": ["status", "priority", "due", "owner"],
       "actions": [
         {
-          "id": "promote",
-          "label": "Promote to active work",
-          "description": "Move the item into the active queue."
-        },
-        {
-          "id": "keep",
-          "label": "Keep in backlog",
-          "description": "Leave the item in its current queue."
-        }
-      ]
-    },
-    {
-      "id": "plan_review",
-      "title": "Plan review",
-      "description": "Review long-form sections, a table, and a portable diagram in the same workbench.",
-      "source": "plan_items",
-      "empty": "No plans need review.",
-      "question": "What feedback should return to the agent?",
-      "selection_mode": "multiple",
-      "detail_keys": ["status", "owner", "updated"],
-      "primary_keys": ["status", "updated"],
-      "actions": [
-        {
-          "id": "approve_direction",
-          "label": "Approve the direction",
-          "description": "Keep the proposed structure and proceed to implementation.",
-          "risk": "low",
-          "reversible": true,
-          "conflicts_with": ["revise_direction"]
-        },
-        {
-          "id": "revise_direction",
-          "label": "Revise the direction",
-          "description": "Return the plan with targeted changes.",
-          "risk": "low",
-          "reversible": true,
-          "requires_note": true,
-          "conflicts_with": ["approve_direction"]
-        },
-        {
-          "id": "capture_follow_up",
-          "label": "Capture follow-up work",
-          "description": "Keep the direction and record additional work separately.",
+          "id": "use_board",
+          "label": "Use the project board values",
+          "description": "Update the task list to match the project board.",
           "risk": "low",
           "reversible": true
+        },
+        {
+          "id": "use_task_list",
+          "label": "Use the task list values",
+          "description": "Update the project board to match the task list.",
+          "risk": "low",
+          "reversible": true
+        },
+        {
+          "id": "set_new_values",
+          "label": "Set different shared values",
+          "description": "Describe the status, priority, due date, and owner both records should use.",
+          "risk": "low",
+          "reversible": true,
+          "requires_note": true
         }
       ]
     }

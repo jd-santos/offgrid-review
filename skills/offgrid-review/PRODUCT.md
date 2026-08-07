@@ -19,17 +19,13 @@ or knowing how it was generated.
 Offgrid Review gives agent-assisted work a focused human interface for decisions
 that are too complex for a yes or no in chat. An agent gathers evidence and
 frames the available options, proposed changes, or plan; the reviewer compares,
-annotates, and decides in a portable workbench; the result returns to the agent
+annotates, and decides in a portable console; the result returns to the agent
 as machine-readable JSON.
-
-Its original purpose was data processing and tagging review. The first concrete
-use case compared Obsidian notes with corresponding Todoist tasks to resolve
-conflicting priorities, statuses, and other mismatches.
 
 The same engine also supports human review of agent-prepared plans through
 semantic overview, prose, table, flow, timeline, dependency graph, chart,
 constrained SVG, and decision blocks. Item review and plan review use one
-workbench, artifact contract, and apply boundary. Use-case subskills can
+console, artifact contract, and apply boundary. Use-case subskills can
 supply specialized data and framing without replacing the engine.
 
 Success means a reviewer can give precise feedback faster and more accurately
@@ -39,7 +35,7 @@ particular platform.
 
 ## Positioning
 
-The workbench is the human-facing part of an agent workflow. The agent prepares
+The console is the human-facing part of an agent workflow. The agent prepares
 the evidence and questions, a single offline HTML file carries the review, and
 explicit human decisions return as JSON.
 
@@ -59,8 +55,7 @@ The expected workflow is:
 1. A deterministic script or agent produces source data as JSON.
 2. An agent writes a review specification for the current question.
 3. The generator produces one static HTML file.
-4. The human reviews it in a browser or file viewer, often through Telegram and
-   a Hermes agent.
+4. The human reviews it in a browser or constrained file viewer.
 5. The human exports decision JSON and sends it back through chat.
 6. A separate apply pass verifies current state before making approved changes.
 
@@ -93,30 +88,21 @@ each generated file embeds the Apache license and notice. This keeps the
 portable handoff artifact separate from the generator's GPL distribution
 boundary.
 
-The generated page is a decision-capture surface. It must not mutate Todoist,
-Obsidian, or any other external system. Applying decisions remains a separate,
-verified step.
+The generated page is a decision-capture surface. It must not mutate any
+external system. Applying decisions remains a separate, verified step.
 
 The general toolkit should remain adaptable through JSON data and review
 specifications. Specific use cases may extend the presentation and decision
 model, but should not require rewriting the generator whenever the review
 question changes.
 
-Open decisions:
-
-- Whether a later format can support highlighted inline comments without
-  weakening portability or stable annotation targets.
-- Which additional structured visual types are common enough to add without
-  turning the format into a general drawing language.
-- When a specialized review domain has diverged enough to justify a subskill.
-
 ## Brand Commitments
 
 The product name is Offgrid Review.
 
-It is a general-purpose baseline toolkit, not a UI tailored only to the original
-Obsidian and Todoist reconciliation workflow. Generated files should feel
-considered enough to hand to another person without explanation or apology.
+It is a general-purpose baseline toolkit, not an interface tailored to one
+reconciliation workflow. Generated files should feel considered enough to hand
+to another person without explanation or apology.
 
 The product voice should be direct, concrete, and clear about what a decision
 will do. It should not imply that reviewing a decision applies it.
@@ -146,13 +132,14 @@ danger. Light and dark themes receive equal support.
 - `reference/usage.md`: supported workflows, interaction behavior, and known
   file-viewer constraints.
 - `DESIGN.md`: interface system, visual rules, and responsive behavior.
-- `tests/test_renderer.py`: checks workbench layout, multi-select and
+- `tests/test_renderer.py`: checks console layout, multi-select and
   single-select behavior, granular annotations, plan renderers, themes, risk
   metadata, summaries, export validation, and the interface contract.
 - `tests/test_identity.py` and `tests/test_validation.py`: check deterministic
   identity, input contracts, uniqueness, limits, and failure messages.
 - `tests/browser/test_workbench.py`: checks persistence, stale-state rejection,
-  hostile raw-text data, mobile document review, focus return, and reflow.
+  hostile raw-text data, keyboard and mobile navigation, focus return, target
+  size, contrast, note-only completion, and reflow.
 - `tests/test_cli.py`: checks generation, protected starter-spec output, version
   metadata, expected errors, limits, and exit codes.
 
@@ -181,7 +168,7 @@ hand. Future work must not invent them.
 
 ## Accessibility & Inclusion
 
-Generated workbenches target WCAG 2.2 AA. Preserve a skip link, named
+Generated consoles target WCAG 2.2 AA. Preserve a skip link, named
 landmarks, keyboard navigation, visible focus states, assistive-technology state
 exposure, live status updates, minimum target sizes, 200 percent text reflow,
 and reduced-motion support. Bare character shortcuts are not allowed.

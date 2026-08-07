@@ -1,19 +1,45 @@
 # Offgrid Review
 
-Offgrid Review gives you a focused interface for decisions that are too complex
-for a yes or no in chat. Your agent prepares the evidence, options, proposed
-changes, or plan; you review and annotate them in a portable workbench, then
-return machine-readable decisions for a verified apply pass.
+Offgrid Review gives complex human decisions a clearer interface than a long
+chat thread. An agent prepares the evidence, options, or plan; you review them
+in a portable console; a separate verified pass applies only the decisions you
+return.
 
-The result is one self-contained HTML file that works offline and can move
+Each console is one self-contained HTML file. It works offline and can move
 through chat, email, shared storage, or removable media.
 
-[Quick start](#quick-start) · [What it handles](#what-it-handles) ·
-[Direct CLI use](#direct-cli-use) · [Reference](#reference)
+[Examples](#examples) · [Quick start](#quick-start) ·
+[What it handles](#what-it-handles) · [Direct CLI use](#direct-cli-use) ·
+[Reference](#reference)
 
-![A planning document open in Offgrid Review's dark theme, with document contents, review progress, annotations, and decision export controls](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/planning-review-dark.png)
+## Examples
 
-_One workbench handles decision batches, proposals, and complete plans._
+### Complete planning documents
+
+![A community repair workshop plan open in Offgrid Review's dark theme, with document contents, review progress, block comments, and decision export controls](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/planning-review-dark.png)
+
+Review prose, tables, diagrams, timelines, charts, and final direction decisions
+as one readable document.
+
+### Decision batches
+
+![A community workshop decision batch showing search, queue navigation, evidence, compatible actions, notes, and review progress](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/queue-review-light.png)
+
+Group related questions into queues without losing item-level evidence, risk,
+rationale, or completion state.
+
+### Structured planning visuals
+
+![A participant journey flow and preparation timeline inside a planning console](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/planning-visuals-dark.png)
+
+Semantic visual blocks keep their source structure and a visible text
+alternative.
+
+### Two-record comparisons
+
+![A two-record comparison showing differences between a project board and task list with explicit alignment choices](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/comparison-review-light.png)
+
+Compare records side by side and return an explicit source-of-truth decision.
 
 ## Quick start
 
@@ -34,7 +60,7 @@ Reload your agent's skills if the host requires it. Other agent systems can use
 [`skills/offgrid-review/SKILL.md`](https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/SKILL.md)
 directly.
 
-### 2. Ask your agent to prepare a workbench
+### 2. Ask your agent to prepare a console
 
 For example:
 
@@ -66,7 +92,7 @@ which does not require documentation updates for each package release.
 ```text
 agent gathers evidence and frames the questions
                       ↓
-          portable HTML review workbench
+          portable HTML review console
                       ↓
          human decisions and annotations
                       ↓
@@ -74,7 +100,7 @@ agent gathers evidence and frames the questions
 ```
 
 The generator is deterministic. The agent decides what evidence and questions
-to include; the browser workbench captures the human response; a separate apply
+to include; the browser console captures the human response; a separate apply
 pass handles mutation.
 
 ## What it handles
@@ -111,6 +137,19 @@ Every diagram and chart has a visible text alternative. Charts also retain
 their source-value tables. Custom SVG passes a strict allowlist before it can
 reach the generated page.
 
+### Desktop and mobile review
+
+The console adapts document contents, decision controls, and navigation to
+narrow screens. The mobile action tray keeps the current decision available
+without hiding the document behind a modal.
+
+![A planning console on a narrow screen with progress, document content, a floating contents control, and a persistent action tray](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/mobile-review-dark.png)
+
+The floating contents control opens a nonmodal section list when the full rail
+no longer fits.
+
+![The nonmodal document contents drawer open over a mobile planning console](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/mobile-contents-dark.png)
+
 ## Direct CLI use
 
 The CLI is the deterministic compiler underneath the agent workflow. To try it
@@ -131,7 +170,7 @@ Open `review.html` in a browser. The command expects three explicit paths:
 
 - `--data`: the source snapshot and evidence as JSON
 - `--spec`: the questions, actions, presentation, and review framing as JSON
-- `--out`: the HTML workbench to create
+- `--out`: the HTML console to create
 
 Once you have your own data and specification, run the current release candidate
 directly from GitHub:
@@ -161,21 +200,14 @@ uvx offgrid-review \
   --out review.html
 ```
 
-UVX uses the latest available version on its first invocation and then reuses
-its cached environment. Run
-`uvx --refresh-package offgrid-review offgrid-review` when you explicitly want
-UV to check for a newer release. Exact pins such as `offgrid-review@0.1.0` are
-reserved for reproducibility and release verification.
-
-Offgrid Review supports Python 3.10 or later and has no third-party runtime
-dependencies. Development and manual testing currently happen on macOS. CI
-exercises Ubuntu, but broader Linux compatibility has not been manually
-verified. Native Windows is unsupported; WSL is unverified.
+Offgrid Review requires Python 3.10 or later and has no third-party runtime
+dependencies. The [usage guide][usage-guide] explains UVX caching, refresh and
+version-pin behavior, tested platforms, and current compatibility limits.
 
 ## Agent skill
 
 The reusable skill is the discovery and workflow layer. It tells an agent when
-a dedicated workbench is a better fit than chat, how to gather source data
+a dedicated console is a better fit than chat, how to gather source data
 without mutating it, how to frame the questions, and how to preserve the
 review/apply boundary. It invokes the same CLI available to direct users and
 does not carry a second renderer implementation.
@@ -184,29 +216,6 @@ See the [usage guide](https://github.com/jd-santos/offgrid-review/blob/main/skil
 for custom data and specifications, and the
 [artifact contract](https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/reference/artifact-contract.md)
 for the complete input and decision formats.
-
-## More screenshots
-
-<!-- markdownlint-disable MD033 -->
-
-<details>
-<summary>Decision batch, mobile, and contents navigation examples</summary>
-
-### Decision batch in the light theme
-
-![A queue review showing filters, evidence, compatible actions, risk signals, and review progress](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/queue-review-light.png)
-
-### Mobile review
-
-![A planning review on a narrow screen with progress, review content, a floating contents control, and a persistent action tray](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/mobile-review-dark.png)
-
-### Mobile contents navigation
-
-![The nonmodal document contents drawer open over a mobile planning review](https://raw.githubusercontent.com/jd-santos/offgrid-review/main/docs/images/mobile-contents-dark.png)
-
-</details>
-
-<!-- markdownlint-enable MD033 -->
 
 ## Reference
 

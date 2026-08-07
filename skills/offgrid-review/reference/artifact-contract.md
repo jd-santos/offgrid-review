@@ -100,8 +100,8 @@ Every `conflicts_with` reference must resolve to an available action.
 
 ### Item plan sections
 
-A queue item can include a `sections` array for the older card-contained plan
-presentation. Every section accepts:
+A queue item can include a `sections` array for structured content inside its
+review card. Every section accepts:
 
 - `id`: stable annotation target.
 - `title`: visible heading.
@@ -156,18 +156,9 @@ with no action remain annotation-only feedback.
 
 ## 3. Static HTML console
 
-After creating the data and specification described above, generate the console
-from Git while `0.1.0` is being prepared:
-
-```bash
-uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review \
-  --data review-data.json \
-  --spec review-spec.json \
-  --out review.html
-```
-
-This Git-source command is temporary. Use `uvx offgrid-review` after
-publication. Exact version pins are only needed for reproducibility.
+Create this artifact from the data and specification above using the current
+command in the [usage guide](usage.md). Package acquisition and release status
+live there so this schema contract does not duplicate them.
 
 Properties:
 

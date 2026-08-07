@@ -1,147 +1,152 @@
 {
-  "date": "2026-08-03",
+  "date": "2026-09-01",
   "counts": {
     "document_blocks": 8,
     "review_decisions": 1
   },
   "plan_document": {
     "overview": {
-      "title": "Proposal overview",
-      "body": "Evolve Offgrid Review from a queue-only reviewer into a shared workbench for operational items and complete planning documents.",
+      "title": "Plan at a glance",
+      "body": "Host a free Saturday repair workshop where neighbors can learn basic fixes for clothing, bicycles, and small household items.",
       "points": [
-        "Keep one offline HTML artifact and one apply boundary",
-        "Choose visual blocks according to the review question",
-        "Preserve a pure-text path for every diagram or chart"
+        "Serve up to 60 participants in one accessible venue",
+        "Run three practical sessions with shared check-in and safety guidance",
+        "Keep the event within a $1,200 materials and venue budget"
       ]
     },
     "context": {
-      "title": "Why this belongs in the same engine",
-      "body": "Queue review and plan review ask the same fundamental question: what should a human approve, reject, annotate, or defer? The presentation changes, but persistence, risk signaling, review summaries, and exported decisions do not.\n\nA document-oriented review therefore adds semantic blocks rather than a second product."
+      "title": "Goals and constraints",
+      "body": "The workshop should help participants complete one useful repair and leave with enough confidence to repeat it at home. The public library can provide the main hall from 9:00 a.m. to 4:00 p.m.\n\nThe plan assumes six instructors, ten volunteers, and donated tools. Registration must stay below the room's safe capacity, and every session needs a seated option."
     },
-    "decision_table": {
-      "title": "Presentation choices",
-      "columns": ["Review need", "Preferred block", "Fallback"],
+    "session_table": {
+      "title": "Draft session plan",
+      "columns": ["Time", "Activity", "Lead", "Capacity"],
       "rows": [
-        ["Explain intent", "Overview or prose", "Plain paragraphs"],
-        ["Compare states", "Table", "Row-by-row text"],
-        ["Show sequence", "Flow or timeline", "Ordered step list"],
-        ["Show relationships", "Dependency graph", "Dependency statements"],
-        ["Compare quantities", "Bar or line chart", "Data table"],
-        ["Handle a special visual", "Sanitized SVG", "Required text alternative"]
+        ["9:00", "Check-in and safety briefing", "Jules", "60"],
+        ["10:00", "Clothing repairs", "Priya", "20"],
+        ["11:30", "Bicycle care", "Marco", "20"],
+        ["1:30", "Small household fixes", "Avery", "20"],
+        ["3:15", "Shared cleanup and feedback", "Elena", "60"]
       ]
     },
     "flow": {
-      "title": "Review and apply flow",
-      "description": "A proposal moves through deterministic preparation, human review, export, and verified application.",
+      "title": "Participant journey",
+      "description": "Each participant follows the same simple path through the event.",
       "nodes": [
         {
-          "id": "prepare",
-          "title": "Prepare",
-          "description": "Gather facts and author the spec"
+          "id": "register",
+          "title": "Register",
+          "description": "Choose a repair session"
         },
         {
-          "id": "review",
-          "title": "Review",
-          "description": "Inspect, decide, and annotate"
+          "id": "check_in",
+          "title": "Check in",
+          "description": "Confirm access and safety needs"
         },
         {
-          "id": "export",
-          "title": "Export",
-          "description": "Download structured JSON"
+          "id": "repair",
+          "title": "Repair",
+          "description": "Work with an instructor"
         },
         {
-          "id": "apply",
-          "title": "Apply",
-          "description": "Verify live state first"
+          "id": "reflect",
+          "title": "Reflect",
+          "description": "Record the result and next step"
         }
       ],
       "edges": [
-        {"from": "prepare", "to": "review"},
-        {"from": "review", "to": "export"},
-        {"from": "export", "to": "apply"}
+        {"from": "register", "to": "check_in"},
+        {"from": "check_in", "to": "repair"},
+        {"from": "repair", "to": "reflect"}
       ]
     },
     "timeline": {
-      "title": "Delivery sequence",
+      "title": "Preparation timeline",
       "events": [
         {
-          "step": "Stage 1",
-          "title": "Stabilize the shared schema",
-          "description": "Add semantic blocks without changing existing queue specs."
+          "step": "Six weeks before",
+          "title": "Confirm venue and instructors",
+          "description": "Lock the room layout, session leads, and accessibility support."
         },
         {
-          "step": "Stage 2",
-          "title": "Ship structured visuals",
-          "description": "Render flows, timelines, dependency graphs, and charts from JSON."
+          "step": "Four weeks before",
+          "title": "Open registration",
+          "description": "Publish session choices and cap each session at 20 participants."
         },
         {
-          "step": "Stage 3",
-          "title": "Evaluate specialized workflows",
-          "description": "Split a subskill only when a domain needs different review behavior."
+          "step": "One week before",
+          "title": "Pack tools and supplies",
+          "description": "Use the registration list to prepare materials for each session."
+        },
+        {
+          "step": "Event day",
+          "title": "Run the workshop",
+          "description": "Track attendance, incidents, completed repairs, and follow-up needs."
         }
       ]
     },
     "dependencies": {
-      "title": "Implementation dependencies",
-      "description": "Document review depends on the shared artifact and safety contracts.",
+      "title": "Delivery dependencies",
+      "description": "Registration and purchasing depend on a few early commitments.",
       "nodes": [
         {
-          "id": "artifact",
-          "title": "Artifact contract",
-          "description": "Stable JSON shapes",
+          "id": "venue",
+          "title": "Venue",
+          "description": "Capacity and room layout",
           "level": 0
         },
         {
-          "id": "blocks",
-          "title": "Block renderers",
-          "description": "Escaped HTML and SVG",
+          "id": "instructors",
+          "title": "Instructors",
+          "description": "Session leads and equipment needs",
+          "level": 0
+        },
+        {
+          "id": "registration",
+          "title": "Registration",
+          "description": "Session demand and access needs",
           "level": 1
         },
         {
-          "id": "decisions",
-          "title": "Decision model",
-          "description": "Actions and notes",
-          "level": 1
-        },
-        {
-          "id": "export",
-          "title": "Decision export",
-          "description": "Shared approval artifact",
+          "id": "supplies",
+          "title": "Supplies",
+          "description": "Materials matched to attendance",
           "level": 2
         },
         {
-          "id": "apply",
-          "title": "Verified apply",
-          "description": "Live-state check",
+          "id": "workshop",
+          "title": "Workshop",
+          "description": "Final staffed event",
           "level": 3
         }
       ],
       "edges": [
-        {"from": "blocks", "to": "artifact"},
-        {"from": "decisions", "to": "artifact"},
-        {"from": "export", "to": "blocks"},
-        {"from": "export", "to": "decisions"},
-        {"from": "apply", "to": "export"}
+        {"from": "registration", "to": "venue"},
+        {"from": "registration", "to": "instructors"},
+        {"from": "supplies", "to": "registration"},
+        {"from": "workshop", "to": "venue"},
+        {"from": "workshop", "to": "instructors"},
+        {"from": "workshop", "to": "supplies"}
       ]
     },
     "chart": {
-      "title": "Illustrative review volume",
-      "description": "Synthetic data showing how plan review may reduce line-by-line chat responses.",
+      "title": "Expected attendance by session",
+      "description": "Registration targets used to size instructor teams and supply kits.",
       "chart_type": "bar",
-      "unit": " items",
+      "unit": " participants",
       "values": [
-        {"label": "Chat replies", "value": 34},
-        {"label": "Review blocks", "value": 8},
-        {"label": "Decisions", "value": 3}
+        {"label": "Clothing repairs", "value": 20},
+        {"label": "Bicycle care", "value": 18},
+        {"label": "Household fixes", "value": 16}
       ]
     },
     "custom_svg": {
-      "title": "Portable feedback loop",
-      "svg": "<svg viewBox=\"0 0 640 220\" role=\"img\"><title>Portable feedback loop</title><desc>Three stages connect review, decision JSON, and verified apply.</desc><rect x=\"40\" y=\"70\" width=\"150\" height=\"70\" rx=\"10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"245\" y=\"70\" width=\"150\" height=\"70\" rx=\"10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"450\" y=\"70\" width=\"150\" height=\"70\" rx=\"10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><line x1=\"190\" y1=\"105\" x2=\"245\" y2=\"105\" stroke=\"currentColor\" stroke-width=\"2\"/><line x1=\"395\" y1=\"105\" x2=\"450\" y2=\"105\" stroke=\"currentColor\" stroke-width=\"2\"/><text x=\"115\" y=\"110\" text-anchor=\"middle\" fill=\"currentColor\" font-size=\"18\">Review</text><text x=\"320\" y=\"110\" text-anchor=\"middle\" fill=\"currentColor\" font-size=\"18\">Decision JSON</text><text x=\"525\" y=\"110\" text-anchor=\"middle\" fill=\"currentColor\" font-size=\"18\">Verified apply</text></svg>",
+      "title": "Room layout",
+      "svg": "<svg viewBox=\"0 0 640 260\" role=\"img\"><title>Workshop room layout</title><desc>Check-in sits by the entrance, with three repair areas arranged around a central supply table.</desc><rect x=\"30\" y=\"30\" width=\"580\" height=\"200\" rx=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"55\" y=\"55\" width=\"130\" height=\"55\" rx=\"8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"255\" y=\"95\" width=\"130\" height=\"70\" rx=\"8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"455\" y=\"55\" width=\"130\" height=\"55\" rx=\"8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"55\" y=\"155\" width=\"130\" height=\"50\" rx=\"8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"455\" y=\"155\" width=\"130\" height=\"50\" rx=\"8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><text x=\"120\" y=\"87\" text-anchor=\"middle\" fill=\"currentColor\" font-size=\"16\">Check-in</text><text x=\"320\" y=\"135\" text-anchor=\"middle\" fill=\"currentColor\" font-size=\"16\">Supplies</text><text x=\"520\" y=\"87\" text-anchor=\"middle\" fill=\"currentColor\" font-size=\"16\">Clothing</text><text x=\"120\" y=\"185\" text-anchor=\"middle\" fill=\"currentColor\" font-size=\"16\">Bicycles</text><text x=\"520\" y=\"185\" text-anchor=\"middle\" fill=\"currentColor\" font-size=\"16\">Household</text></svg>",
       "fallback": [
-        "Review: a human inspects evidence and records explicit choices",
-        "Decision JSON: the console exports a portable approval artifact",
-        "Verified apply: a separate pass checks live state before mutation"
+        "Check-in is beside the entrance",
+        "A shared supply table sits in the center of the room",
+        "Clothing, bicycle, and household repair areas surround the supply table"
       ]
     }
   }

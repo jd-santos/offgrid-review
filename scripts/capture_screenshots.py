@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import subprocess
 import tempfile
@@ -61,15 +62,49 @@ def generate(data_name: str, spec_name: str, output: Path) -> None:
     )
 
 
-def prepare_page(source: Path, output: Path, theme: str, open_contents: bool = False) -> None:
+def prepare_page(
+    source: Path,
+    output: Path,
+    theme: str,
+    open_contents: bool = False,
+    focus_target: str | None = None,
+) -> None:
     text = source.read_text()
     marker = "initializeTheme();"
     if marker not in text:
         raise SystemExit(f"Theme initialization marker missing from {source}")
     text = text.replace(marker, f"setTheme('{theme}');", 1)
 
+    scripts: list[str] = []
     if open_contents:
-        script = "<script>document.getElementById('tocLauncher')?.click();</script>"
+        scripts.append("document.getElementById('tocLauncher')?.click();")
+    if focus_target:
+        selector = json.dumps(focus_target)
+        scripts.append(
+            f"const target = document.querySelector({selector});"
+            "if (target) {"
+            "let previous = target.previousElementSibling;"
+            "while (previous) {"
+            "const sibling = previous.previousElementSibling;"
+            "previous.hidden = true;"
+            "previous = sibling;"
+            "}"
+            "const markCaptureTarget = () => {"
+            "document.querySelectorAll('[data-toc-target]').forEach((link) => {"
+            "if (link.dataset.tocTarget === target.id) {"
+            "link.setAttribute('aria-current', 'location');"
+            "} else {"
+            "link.removeAttribute('aria-current');"
+            "}"
+            "});"
+            "};"
+            "updateDocumentToc = markCaptureTarget;"
+            "markCaptureTarget();"
+            "updateQueueNavigation();"
+            "}"
+        )
+    if scripts:
+        script = f"<script>{''.join(scripts)}</script>"
         text = text.replace("</body>", f"{script}</body>", 1)
 
     output.write_text(text)
@@ -116,15 +151,77 @@ def main() -> None:
         generate("review-plan-data.json", "review-plan-spec.json", plan)
 
         variants = (
-            (queue, "queue-light.html", "queue-review-light.png", "light", False, 1440, 900),
-            (plan, "plan-dark.html", "planning-review-dark.png", "dark", False, 1440, 900),
-            (plan, "mobile-dark.html", "mobile-review-dark.png", "dark", False, 500, 900),
-            (plan, "mobile-contents.html", "mobile-contents-dark.png", "dark", True, 500, 900),
+            (
+                queue,
+                "queue-light.html",
+                "queue-review-light.png",
+                "light",
+                False,
+                None,
+                1440,
+                900,
+            ),
+            (
+                plan,
+                "plan-dark.html",
+                "planning-review-dark.png",
+                "dark",
+                False,
+                None,
+                1440,
+                900,
+            ),
+            (
+                queue,
+                "comparison-light.html",
+                "comparison-review-light.png",
+                "light",
+                False,
+                "#record_mismatches",
+                1440,
+                780,
+            ),
+            (
+                plan,
+                "planning-visuals-dark.html",
+                "planning-visuals-dark.png",
+                "dark",
+                False,
+                "#community-workshop-participant-journey",
+                1440,
+                780,
+            ),
+            (
+                plan,
+                "mobile-dark.html",
+                "mobile-review-dark.png",
+                "dark",
+                False,
+                None,
+                500,
+                900,
+            ),
+            (
+                plan,
+                "mobile-contents.html",
+                "mobile-contents-dark.png",
+                "dark",
+                True,
+                None,
+                500,
+                900,
+            ),
         )
 
-        for source, page_name, image_name, theme, contents, width, height in variants:
+        for source, page_name, image_name, theme, contents, target, width, height in variants:
             page = work / page_name
-            prepare_page(source, page, theme, contents)
+            prepare_page(
+                source,
+                page,
+                theme,
+                open_contents=contents,
+                focus_target=target,
+            )
             destination = output_dir / image_name
             capture(chrome, page, destination, width, height)
             print(destination.relative_to(ROOT) if destination.is_relative_to(ROOT) else destination)

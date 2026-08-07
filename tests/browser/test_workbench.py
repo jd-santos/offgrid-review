@@ -35,7 +35,7 @@ class _QuietHandler(http.server.SimpleHTTPRequestHandler):
         pass
 
 
-class WorkbenchBrowserTests(unittest.TestCase):
+class ReviewConsoleBrowserTests(unittest.TestCase):
     playwright: Playwright
     browser: Browser
     server: http.server.ThreadingHTTPServer
@@ -371,7 +371,7 @@ class WorkbenchBrowserTests(unittest.TestCase):
         )
 
         page.locator("#mobileTrayToggle").click()
-        page.locator("input[data-action='approve_direction']").check()
+        page.locator("input[data-action='approve_plan']").check()
         first_block = page.locator(".document-block").first
         first_block.locator(".annotation-panel summary").click()
         first_block.locator("textarea[data-document-note]").fill(

@@ -1,6 +1,6 @@
 # Accessibility checks
 
-Generated workbenches target WCAG 2.2 Level AA. This is an engineering target,
+Generated consoles target WCAG 2.2 Level AA. This is an engineering target,
 not a certification claim. The renderer, browser runtime, themes, and release
 checks all share responsibility for meeting it.
 

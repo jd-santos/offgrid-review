@@ -1,11 +1,11 @@
 {
-  "title": "Offline Review Workflow Proposal",
-  "review_id": "planning-example",
-  "subtitle": "Review the proposed document model, its visual vocabulary, and the decision required before implementation.",
-  "agent_help": "Read the proposal in order, inspect each visual or its text alternative, comment on specific blocks, then record the final decision.",
-  "document_id": "plan_review",
-  "document_title": "Planning proposal",
-  "document_description": "A complete planning document rendered through the same decision engine as queue review.",
+  "title": "Community Repair Workshop Plan",
+  "review_id": "community-repair-workshop-plan",
+  "subtitle": "Review the event plan, comment on specific sections, and decide whether it is ready to schedule.",
+  "agent_help": "Read the plan in order, inspect each visual or its text alternative, comment on any block that needs attention, then record the final decision.",
+  "document_id": "community_workshop",
+  "document_title": "Autumn repair workshop",
+  "document_description": "A one-day neighborhood event with three practical repair sessions.",
   "payload_meta": {
     "review_kind": "planning_document",
     "example": true
@@ -14,13 +14,13 @@
     {
       "id": "defer",
       "label": "Defer for later",
-      "description": "Leave the proposal for a future review.",
+      "description": "Leave the plan for a future review.",
       "exclusive": true
     },
     {
-      "id": "needs_human",
-      "label": "Needs another reviewer",
-      "description": "Route the plan to a person with different context.",
+      "id": "needs_specialist",
+      "label": "Needs specialist input",
+      "description": "Ask a venue, accessibility, or safety specialist to review the plan.",
       "exclusive": true
     }
   ],
@@ -37,63 +37,63 @@
     },
     {
       "type": "table",
-      "id": "presentation_choices",
-      "source": "plan_document.decision_table"
+      "id": "session_plan",
+      "source": "plan_document.session_table"
     },
     {
       "type": "flow",
-      "id": "review_flow",
+      "id": "participant_journey",
       "source": "plan_document.flow"
     },
     {
       "type": "timeline",
-      "id": "delivery_sequence",
+      "id": "preparation_timeline",
       "source": "plan_document.timeline"
     },
     {
       "type": "dependency_graph",
-      "id": "dependencies",
+      "id": "delivery_dependencies",
       "source": "plan_document.dependencies"
     },
     {
       "type": "chart",
-      "id": "review_volume",
+      "id": "attendance",
       "source": "plan_document.chart"
     },
     {
       "type": "svg",
-      "id": "feedback_loop",
+      "id": "room_layout",
       "source": "plan_document.custom_svg"
     },
     {
       "type": "decision",
-      "id": "direction",
-      "title": "Direction decision",
-      "body": "Choose every outcome that should return to the agent. Conflicting choices remain visible until corrected.",
-      "question": "What should happen with this proposal?",
+      "id": "final_decision",
+      "title": "Plan decision",
+      "body": "Choose every outcome that should return to the event team. Conflicting choices remain visible until corrected.",
+      "question": "What should happen with this plan?",
       "selection_mode": "multiple",
       "actions": [
         {
-          "id": "approve_direction",
-          "label": "Approve the direction",
-          "description": "Proceed with the shared semantic-block model.",
+          "id": "approve_plan",
+          "label": "Approve the plan",
+          "description": "Schedule the workshop using the proposed structure and budget.",
           "risk": "low",
           "reversible": true,
-          "conflicts_with": ["revise_direction"]
+          "conflicts_with": ["revise_plan"]
         },
         {
-          "id": "revise_direction",
+          "id": "revise_plan",
           "label": "Request revisions",
-          "description": "Return targeted changes before implementation.",
+          "description": "Return specific changes before the workshop is scheduled.",
           "risk": "low",
           "reversible": true,
           "requires_note": true,
-          "conflicts_with": ["approve_direction"]
+          "conflicts_with": ["approve_plan"]
         },
         {
-          "id": "capture_follow_up",
-          "label": "Capture follow-up work",
-          "description": "Approve the direction and record additional work separately.",
+          "id": "add_follow_up",
+          "label": "Add follow-up work",
+          "description": "Keep the plan and record additional preparation separately.",
           "risk": "low",
           "reversible": true
         }
