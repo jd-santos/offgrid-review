@@ -22,7 +22,10 @@ EXAMPLES = ROOT / "skills" / "offgrid-review" / "examples"
 
 
 def load_example(name: str) -> dict[str, Any]:
-    value = json.loads((EXAMPLES / name).read_text(encoding="utf-8"))
+    try:
+        value = json.loads((EXAMPLES / name).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise AssertionError(f"Could not load example {name}: {error}") from error
     assert isinstance(value, dict)
     return value
 
@@ -108,7 +111,10 @@ class WorkbenchBrowserTests(unittest.TestCase):
 
         page.locator(".rail-meta > summary").click()
         page.get_by_role("button", name="Copy decisions").click()
-        copied = json.loads(page.evaluate("navigator.clipboard.readText()"))
+        try:
+            copied = json.loads(page.evaluate("navigator.clipboard.readText()"))
+        except (TypeError, json.JSONDecodeError) as error:
+            self.fail(f"Clipboard did not contain decision JSON: {error}")
         self.assertEqual(copied["artifact_fingerprint"], payload["artifact_fingerprint"])
         self.assertEqual(len(copied["decisions"][0]["actions"]), 2)
 
@@ -172,6 +178,172 @@ class WorkbenchBrowserTests(unittest.TestCase):
             "example_queue:hostile",
         )
         self.assertEqual(errors, [])
+        context.close()
+
+    def test_note_only_response_completes_a_decision(self) -> None:
+        data = {
+            "items": [
+                {
+                    "id": "note-only",
+                    "title": "Missing option",
+                    "description": "None of the proposed actions fit.",
+                }
+            ]
+        }
+        spec = default_spec()
+        spec["review_id"] = "browser-note-only"
+        spec["queues"][0]["source"] = "items"
+        self.write_review(data, spec)
+        context, page = self.new_page()
+        page.goto(self.url)
+
+        page.locator(".decision-note > summary").click()
+        page.locator("textarea[data-note-target='item']").fill(
+            "Return this to the agent for a different proposal."
+        )
+
+        card = page.locator(".card")
+        self.assertIn("done", card.get_attribute("class") or "")
+        self.assertEqual(card.locator(".decision-state").inner_text(), "Complete with a note")
+        self.assertIn("1 of 1", page.locator("#progressLabel").inner_text())
+        self.assertEqual(page.locator("#progressTrack").get_attribute("aria-valuenow"), "1")
+        self.assertEqual(page.locator(".queue-count").inner_text(), "1/1")
+        self.assertIn("1 of 1 complete", page.locator(".queue-nav a").get_attribute("aria-label") or "")
+        self.assertEqual(
+            page.locator(".queue-nav a").get_attribute("aria-current"), "location"
+        )
+
+        payload = page.evaluate("decisionPayload()")
+        self.assertTrue(payload["complete"])
+        self.assertEqual(payload["decisions"], [])
+        self.assertEqual(len(payload["annotations"]), 1)
+        self.assertEqual(
+            payload["annotations"][0]["notes"]["item"],
+            "Return this to the agent for a different proposal.",
+        )
+
+        page.locator("#stateFilter").select_option("complete")
+        self.assertTrue(card.is_visible())
+        page.locator("#summaryTrigger").click()
+        summary_text = page.locator("#summaryBody").inner_text()
+        self.assertIn("Complete\n1 of 1", summary_text)
+        self.assertIn("Notes added\n1", summary_text)
+        page.locator("#summaryPanel .summary-close").click()
+        context.close()
+
+    def test_keyboard_navigation_names_targets_and_queue_reflow(self) -> None:
+        data = {
+            "items": [
+                {"id": f"item-{index}", "title": f"Decision {index}"}
+                for index in range(1, 4)
+            ]
+        }
+        spec = default_spec()
+        spec["review_id"] = "browser-accessibility"
+        spec["queues"][0]["source"] = "items"
+        self.write_review(data, spec)
+        context, page = self.new_page(reduced_motion="reduce")
+        page.goto(self.url)
+
+        page.keyboard.press("Tab")
+        self.assertTrue(
+            page.locator(".skip-link").evaluate("element => element === document.activeElement")
+        )
+        page.keyboard.press("Enter")
+        self.assertTrue(
+            page.locator("#reviewMain").evaluate("element => element === document.activeElement")
+        )
+
+        page.locator("#summaryTrigger").focus()
+        page.keyboard.press("j")
+        self.assertTrue(
+            page.locator("#summaryTrigger").evaluate("element => element === document.activeElement")
+        )
+        page.keyboard.press("Alt+j")
+        self.assertEqual(
+            page.evaluate("document.activeElement.closest('.card')?.dataset.id"),
+            "example_queue:item-1",
+        )
+        page.keyboard.press("Alt+j")
+        self.assertEqual(
+            page.evaluate("document.activeElement.closest('.card')?.dataset.id"),
+            "example_queue:item-2",
+        )
+        focus_bounds = page.evaluate(
+            """() => {
+              const focus = document.activeElement.getBoundingClientRect();
+              const header = document.querySelector('.app-header').getBoundingClientRect();
+              return { focusTop: focus.top, headerBottom: header.bottom };
+            }"""
+        )
+        self.assertGreaterEqual(focus_bounds["focusTop"], focus_bounds["headerBottom"])
+
+        page.locator("#summaryTrigger").focus()
+        page.keyboard.press("/")
+        self.assertTrue(
+            page.locator("#summaryTrigger").evaluate("element => element === document.activeElement")
+        )
+        page.keyboard.press("Alt+/")
+        self.assertTrue(
+            page.locator("#reviewSearch").evaluate("element => element === document.activeElement")
+        )
+
+        unnamed_controls = page.evaluate(
+            """() => [...document.querySelectorAll('button, input, select, textarea')]
+              .filter(element => !element.hidden && element.getClientRects().length)
+              .filter(element => {
+                const aria = element.getAttribute('aria-label')?.trim();
+                const labels = element.labels ? [...element.labels]
+                  .map(label => label.textContent.trim()).join('') : '';
+                const text = element.textContent?.trim() || '';
+                return !aria && !labels && !text;
+              })
+              .map(element => element.outerHTML.slice(0, 160))"""
+        )
+        self.assertEqual(unnamed_controls, [])
+
+        small_targets = page.evaluate(
+            """() => [...document.querySelectorAll('button, a[href], summary, input, select, textarea')]
+              .filter(element => !element.hidden && element.getClientRects().length)
+              .map(element => {
+                const rects = [element.getBoundingClientRect()];
+                if (element.matches('input[type="checkbox"], input[type="radio"]')) {
+                  const label = element.labels?.[0];
+                  if (label) rects.push(label.getBoundingClientRect());
+                }
+                const left = Math.min(...rects.map(rect => rect.left));
+                const right = Math.max(...rects.map(rect => rect.right));
+                const top = Math.min(...rects.map(rect => rect.top));
+                const bottom = Math.max(...rects.map(rect => rect.bottom));
+                return {
+                  html: element.outerHTML.slice(0, 120),
+                  width: right - left,
+                  height: bottom - top,
+                };
+              })
+              .filter(target => target.width < 24 || target.height < 24)"""
+        )
+        self.assertEqual(small_targets, [])
+        self.assertEqual(
+            page.locator("html").evaluate("element => getComputedStyle(element).scrollBehavior"),
+            "auto",
+        )
+
+        page.set_viewport_size({"width": 390, "height": 844})
+        page.evaluate("document.documentElement.style.fontSize = '200%'")
+        overflow = page.evaluate(
+            "Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) "
+            "- document.documentElement.clientWidth"
+        )
+        self.assertLessEqual(overflow, 1)
+
+        page.evaluate("document.documentElement.style.fontSize = ''")
+        page.set_viewport_size({"width": 320, "height": 844})
+        narrow_overflow = page.evaluate(
+            "Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) "
+            "- document.documentElement.clientWidth"
+        )
+        self.assertLessEqual(narrow_overflow, 1)
         context.close()
 
     def test_planning_review_mobile_contents_focus_and_reflow(self) -> None:

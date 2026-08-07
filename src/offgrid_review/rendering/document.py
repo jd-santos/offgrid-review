@@ -402,17 +402,19 @@ def render_document_decision(
     if selection_mode not in ("multiple", "single"):
         selection_mode = "multiple"
     title = str(block.get("title") or "Decision")
+    title_id = f"decision-title-{owner_key}"
     body = block.get("body") or block.get("content") or ""
     raw_script = script_json(block)
     chunks = [
         f"<article class='card document-decision' id='{html.escape(anchor)}' tabindex='-1' "
-        f"data-id='{html.escape(item_id)}' data-owner-key='{html.escape(owner_key)}' "
+        f"aria-labelledby='{html.escape(title_id)}' data-id='{html.escape(item_id)}' "
+        f"data-owner-key='{html.escape(owner_key)}' "
         f"data-queue='{html.escape(document_id)}' "
         f"data-selection-mode='{selection_mode}' data-search='{html.escape((title + ' ' + str(body)).lower())}'>",
         "<div class='card-content'>",
         f"<div class='card-top'><div><p class='item-position'>Plan decision</p>"
-        f"<h3 class='card-title'>{html.escape(title)}</h3></div>"
-        "<span class='decision-state'>Unresolved</span></div>",
+        f"<h3 class='card-title' id='{html.escape(title_id)}'>{html.escape(title)}</h3></div>"
+        "<span class='decision-state' aria-live='polite'>Needs a decision</span></div>",
         render_paragraphs(body),
     ]
     evidence = block.get("evidence", []) or []
@@ -420,19 +422,15 @@ def render_document_decision(
         chunks.append("<ul class='document-points'>")
         chunks.extend(f"<li>{html.escape(str(item))}</li>" for item in evidence)
         chunks.append("</ul>")
-    chunks.append(
-        "<details class='annotation-panel'><summary>Decision note "
-        "<span class='annotation-count' data-count-target='item'></span></summary>"
-        "<div class='annotation-editor'><label>General note"
-        "<textarea data-note-target='item' placeholder='Add context for the reviewer or apply pass'>"
-        "</textarea></label></div></details>"
-    )
     chunks.append(f"<script type='application/json' class='raw-item'>{raw_script}</script></div>")
+    hint_id = f"decision-hint-{owner_key}"
     chunks.append(
         f"<aside class='decision-column' data-owner-id='{html.escape(item_id)}' "
         f"data-owner-key='{html.escape(owner_key)}'><div class='decision-sticky'>"
-        f"<fieldset class='decision-panel'><legend>{html.escape(str(block.get('question') or 'What should happen next?'))}</legend>"
-        f"<p class='field-hint'>{html.escape(str(block.get('selection_hint') or ('Choose one option.' if selection_mode == 'single' else 'Select every compatible action.')))}</p>"
+        f"<fieldset class='decision-panel' aria-describedby='{html.escape(hint_id)}'>"
+        f"<legend>{html.escape(str(block.get('question') or 'What should happen next?'))}</legend>"
+        f"<p class='field-hint' id='{html.escape(hint_id)}'>"
+        f"{html.escape(str(block.get('selection_hint') or ('Choose one option.' if selection_mode == 'single' else 'Select every compatible action.')))}</p>"
         "<div class='actions'>"
     )
     for action_index, action in enumerate(block.get("actions", [])):
@@ -464,6 +462,13 @@ def render_document_decision(
                 )
             )
         chunks.append("</div></details>")
+    chunks.append(
+        "<details class='annotation-panel decision-note'><summary>Add a decision note "
+        "<span class='annotation-count' data-count-target='item'></span></summary>"
+        "<div class='annotation-editor'><label>Decision note"
+        "<textarea data-note-target='item' placeholder='Describe the outcome you want, especially if the options do not fit'>"
+        "</textarea></label><p class='field-hint'>A note completes this decision as feedback, not as an approved action.</p></div></details>"
+    )
     chunks.append("</fieldset><div class='card-conflict' role='alert' hidden></div></div></aside></article>")
     return "".join(chunks)
 

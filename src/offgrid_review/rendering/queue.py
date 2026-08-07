@@ -263,7 +263,7 @@ def render_action(
     chunks.append("</label>")
     chunks.append(
         f"<button type='button' class='action-note-toggle annotation-toggle' "
-        f"aria-expanded='false' aria-controls='{html.escape(note_id)}'>Note"
+        f"aria-expanded='false' aria-controls='{html.escape(note_id)}'>Add note"
         f"<span class='annotation-count' data-count-target='action:{html.escape(action_id)}'></span>"
         "</button>"
     )
@@ -281,7 +281,7 @@ def render_action(
 
 def render_cards(data: dict[str, Any], spec: dict[str, Any]) -> str:
     global_actions = spec.get("global_actions", [])
-    note_label = spec.get("note_label", "Review note")
+    note_label = spec.get("note_label", "Add a decision note")
     chunks: list[str] = []
     for queue in spec.get("queues", []):
         queue_id = str(queue["id"])
@@ -294,13 +294,16 @@ def render_cards(data: dict[str, Any], spec: dict[str, Any]) -> str:
         selection_mode = queue.get("selection_mode", "multiple")
         if selection_mode not in ("multiple", "single"):
             selection_mode = "multiple"
+        queue_title_id = f"queue-title-{slugify(queue_id)}"
         chunks.append(
-            f"<section class='queue' id='{html.escape(queue_id)}' data-count='{len(items)}'>"
+            f"<section class='queue' id='{html.escape(queue_id)}' data-count='{len(items)}' "
+            f"data-review-queue='true' aria-labelledby='{html.escape(queue_title_id)}'>"
         )
         chunks.append(
-            f"<div class='queue-head'><div><h2>{html.escape(str(queue.get('title', queue_id)))}</h2>"
+            f"<div class='queue-head'><div><h2 id='{html.escape(queue_title_id)}'>"
+            f"{html.escape(str(queue.get('title', queue_id)))}</h2>"
             f"<p>{html.escape(str(queue.get('description', '')))}</p></div>"
-            f"<span class='count'>{len(items)} item{'s' if len(items) != 1 else ''}</span></div>"
+            f"<span class='count'>{len(items)} decision{'s' if len(items) != 1 else ''}</span></div>"
         )
         if not items:
             chunks.append(
@@ -329,16 +332,18 @@ def render_cards(data: dict[str, Any], spec: dict[str, Any]) -> str:
                 + [f"{label} {value}" for label, value in details]
                 + [str(action.get("label", "")) for action in queue.get("actions", [])]
             ).lower()[:4000]
+            title_id = f"decision-title-{owner_key}"
             chunks.append(
-                f"<article class='card' data-id='{html.escape(item_id)}' "
-                f"data-owner-key='{html.escape(owner_key)}' data-queue='{html.escape(queue_id)}' "
-                f"data-selection-mode='{selection_mode}' data-search='{html.escape(search_text)}'>"
+                f"<article class='card' tabindex='-1' aria-labelledby='{html.escape(title_id)}' "
+                f"data-id='{html.escape(item_id)}' data-owner-key='{html.escape(owner_key)}' "
+                f"data-queue='{html.escape(queue_id)}' data-selection-mode='{selection_mode}' "
+                f"data-search='{html.escape(search_text)}'>"
             )
             chunks.append("<div class='card-content'>")
             chunks.append(
-                f"<div class='card-top'><div><p class='item-position'>Item {index + 1} of {len(items)}</p>"
-                f"<h3 class='card-title'>{html.escape(title)}</h3></div>"
-                "<span class='decision-state'>Unresolved</span></div>"
+                f"<div class='card-top'><div><p class='item-position'>Decision {index + 1} of {len(items)}</p>"
+                f"<h3 class='card-title' id='{html.escape(title_id)}'>{html.escape(title)}</h3></div>"
+                "<span class='decision-state' aria-live='polite'>Needs a decision</span></div>"
             )
             chunks.append(render_fact_list(primary_details))
             chunks.append(render_plan_sections(item, owner_key))
@@ -352,14 +357,6 @@ def render_cards(data: dict[str, Any], spec: dict[str, Any]) -> str:
                 "<details class='evidence-disclosure'><summary>Raw source item</summary>"
                 f"<pre class='raw-evidence'>{html.escape(raw_json)}</pre></details>"
             )
-            chunks.append(
-                "<details class='annotation-panel'><summary>"
-                f"{html.escape(note_label)} <span class='annotation-count' "
-                "data-count-target='item'></span></summary>"
-                "<div class='annotation-editor'><label>General note"
-                "<textarea data-note-target='item' placeholder='Add context for the reviewer or apply pass'>"
-                "</textarea></label></div></details>"
-            )
             chunks.append(f"<script type='application/json' class='raw-item'>{raw_script}</script>")
             chunks.append("</div>")
             chunks.append(
@@ -372,9 +369,12 @@ def render_cards(data: dict[str, Any], spec: dict[str, Any]) -> str:
             hint = queue.get("selection_hint") or (
                 "Choose one option." if selection_mode == "single" else "Select every compatible action."
             )
+            hint_id = f"decision-hint-{owner_key}"
             chunks.append(
-                f"<fieldset class='decision-panel'><legend>{html.escape(str(question))}</legend>"
-                f"<p class='field-hint'>{html.escape(str(hint))}</p><div class='actions'>"
+                f"<fieldset class='decision-panel' aria-describedby='{html.escape(hint_id)}'>"
+                f"<legend>{html.escape(str(question))}</legend>"
+                f"<p class='field-hint' id='{html.escape(hint_id)}'>{html.escape(str(hint))}</p>"
+                "<div class='actions'>"
             )
             for action_index, action in enumerate(queue.get("actions", [])):
                 chunks.append(
@@ -405,6 +405,14 @@ def render_cards(data: dict[str, Any], spec: dict[str, Any]) -> str:
                         )
                     )
                 chunks.append("</div></details>")
+            chunks.append(
+                "<details class='annotation-panel decision-note'><summary>"
+                f"{html.escape(str(note_label))} <span class='annotation-count' "
+                "data-count-target='item'></span></summary>"
+                "<div class='annotation-editor'><label>Decision note"
+                "<textarea data-note-target='item' placeholder='Describe the outcome you want, especially if the options do not fit'>"
+                "</textarea></label><p class='field-hint'>A note completes this decision as feedback, not as an approved action.</p></div></details>"
+            )
             chunks.append(
                 "</fieldset><div class='card-conflict' role='alert' hidden></div></div></aside>"
             )

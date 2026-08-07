@@ -47,14 +47,14 @@ def default_spec() -> dict[str, Any]:
     return {
         "title": "Offgrid Review",
         "subtitle": (
-            "Review the evidence, select every compatible action, and export "
-            "decision JSON. Nothing is changed from this page."
+            "Review the evidence, select compatible actions or add decision notes, "
+            "and export decision JSON. Nothing is changed from this page."
         ),
         "global_actions": [
             {
                 "id": "defer",
                 "label": "Defer for later",
-                "description": "Leave the item unresolved for a future review.",
+                "description": "Leave the item for a future review.",
                 "exclusive": True,
             },
             {
@@ -149,48 +149,53 @@ def _navigation(
     data: dict[str, Any],
     spec: dict[str, Any],
     document_blocks: list[dict[str, Any]],
-    document_id: str,
 ) -> tuple[list[str], int, dict[str, int]]:
     links: list[str] = []
-    total_cards = 0
+    total_cards = sum(
+        1 for block in document_blocks if block.get("type") == "decision"
+    )
     represented_counts: dict[str, int] = {}
-    if document_blocks:
-        document_count = sum(
-            1 for block in document_blocks if block.get("type") == "decision"
-        )
-        total_cards += document_count
-        links.append(
-            f"<a href='#{html.escape(document_id)}'><span>"
-            f"{html.escape(str(spec.get('document_title', 'Planning document')))}</span>"
-            f"<b class='queue-count' data-queue-progress='{html.escape(document_id)}'>"
-            f"0/{document_count}</b></a>"
-        )
     for queue in spec.get("queues", []) or []:
         queue_id = str(queue["id"])
         source = str(queue["source"])
         count = len(data[source])
+        title = str(queue.get("title", queue_id))
         represented_counts[source] = count
         total_cards += count
         links.append(
-            f"<a href='#{html.escape(queue_id)}'><span>"
-            f"{html.escape(str(queue.get('title', queue_id)))}</span>"
-            f"<b class='queue-count' data-queue-progress='{html.escape(queue_id)}'>"
-            f"0/{count}</b></a>"
+            f"<a href='#{html.escape(queue_id)}' data-queue-target='{html.escape(queue_id)}' "
+            f"aria-label='{html.escape(title)}, 0 of {count} complete'>"
+            f"<span class='queue-name'>{html.escape(title)}</span>"
+            f"<span class='queue-count' data-queue-progress='{html.escape(queue_id)}' "
+            f"data-queue-name='{html.escape(title)}'>0/{count}</span></a>"
         )
     return links, total_cards, represented_counts
+
+
+def _progress_section(total_cards: int) -> str:
+    progress_max = max(total_cards, 1)
+    return f"""
+    <section class="rail-section review-progress" aria-labelledby="reviewProgressTitle">
+      <h2 id="reviewProgressTitle">Review progress</h2>
+      <div class="progress-line"><span id="progressLabel"><strong id="progressCount">0 of {total_cards}</strong> decisions complete</span><span id="progressPercent">0%</span></div>
+      <div class="progress-track" id="progressTrack" role="progressbar" aria-labelledby="reviewProgressTitle progressLabel" aria-valuemin="0" aria-valuemax="{progress_max}" aria-valuenow="0" aria-valuetext="0 of {total_cards} decisions complete"><div class="progress-fill" id="progressFill"></div></div>
+    </section>"""
 
 
 def _tools_section(has_queues: bool) -> str:
     if not has_queues:
         return ""
     return """
-    <section class="rail-section">
-      <h2>Find an item</h2>
+    <section class="rail-section review-tools-section" aria-labelledby="reviewToolsTitle">
+      <h2 id="reviewToolsTitle">Find a decision</h2>
       <div class="review-tools">
-        <label for="reviewSearch">Search<input id="reviewSearch" type="search" placeholder="Title or evidence" autocomplete="off"></label>
+        <label for="reviewSearch">Search<input id="reviewSearch" type="search" placeholder="Title, evidence, or action" autocomplete="off" aria-keyshortcuts="Alt+/" title="Keyboard shortcut: Alt+/"></label>
         <label for="queueFilter">Queue<select id="queueFilter"><option value="">All queues</option></select></label>
-        <label for="stateFilter">State<select id="stateFilter"><option value="all">All states</option><option value="undecided">Unresolved</option><option value="decided">Resolved</option></select></label>
-        <div class="review-nav-buttons"><button type="button" id="prevUndecided" title="Keyboard shortcut: K">Previous unresolved</button><button type="button" id="nextUndecided" title="Keyboard shortcut: J">Next unresolved</button></div>
+        <label for="stateFilter">Completion<select id="stateFilter"><option value="all">All decisions</option><option value="incomplete">Needs a decision</option><option value="complete">Complete</option></select></label>
+        <nav class="incomplete-nav" aria-labelledby="incompleteNavTitle">
+          <h3 id="incompleteNavTitle">Needs a decision</h3>
+          <div class="review-nav-buttons"><button type="button" id="prevIncomplete" aria-label="Previous decision that needs an answer" aria-keyshortcuts="Alt+K" title="Keyboard shortcut: Alt+K">Previous</button><button type="button" id="nextIncomplete" aria-label="Next decision that needs an answer" aria-keyshortcuts="Alt+J" title="Keyboard shortcut: Alt+J">Next</button></div>
+        </nav>
         <span id="filterStatus" role="status" aria-live="polite"></span>
       </div>
     </section>"""
@@ -218,12 +223,13 @@ def render_html(data: dict[str, Any], spec: dict[str, Any]) -> str:
     ]
     action_specs = _action_specs(spec, document_id, document_blocks)
     queue_links, total_cards, represented_counts = _navigation(
-        data, spec, document_blocks, document_id
+        data, spec, document_blocks
     )
 
     help_sentence = spec.get("agent_help") or (
-        "Review the evidence, select every compatible action, add notes where "
-        "context matters, then download the decisions and send them back to the agent."
+        "Review the evidence, select every compatible action, or add a decision note "
+        "when the options do not fit. Then download the decisions and send them back "
+        "to the agent."
     )
     count_rows = "".join(
         f"<div><dt>{html.escape(str(key).replace('_', ' '))}</dt>"
@@ -236,8 +242,10 @@ def render_html(data: dict[str, Any], spec: dict[str, Any]) -> str:
     queue_section = ""
     if queue_links and not document_only:
         queue_section = (
-            "<section class='rail-section'><h2>Queues</h2>"
-            f"<nav class='queue-nav'>{''.join(queue_links)}</nav></section>"
+            "<section class='rail-section queue-section' aria-labelledby='queuesTitle'>"
+            "<h2 id='queuesTitle'>Queues</h2>"
+            f"<nav class='queue-nav' aria-labelledby='queuesTitle'>{''.join(queue_links)}</nav>"
+            "</section>"
         )
     toc_section = render_document_toc(document_blocks, document_id)
 
@@ -270,13 +278,15 @@ def render_html(data: dict[str, Any], spec: dict[str, Any]) -> str:
         "QUEUE_SECTION": queue_section,
         "TOC_SECTION": toc_section,
         "TOOLS_SECTION": _tools_section(bool(item_queues)),
+        "PROGRESS_SECTION": _progress_section(total_cards),
         "GENERATED_AT": html.escape(generated_at),
         "GENERATOR_VERSION": html.escape(str(identity["generator_version"])),
         "REVIEW_ID": html.escape(str(identity["review_id"])),
         "COUNT_ROWS": count_rows,
         "HELP_SENTENCE": html.escape(str(help_sentence)),
         "CARDS": cards,
-        "REVIEW_CSS": _resource_text("review.css"),
-        "REVIEW_JS": javascript,
     }
-    return _substitute(_resource_text("page.html"), _PAGE_TOKEN_RE, page_values)
+    page = _substitute(_resource_text("page.html"), _PAGE_TOKEN_RE, page_values)
+    return page.replace(
+        "<!-- REVIEW_CSS -->", f"<style>{_resource_text('review.css')}</style>"
+    ).replace("<!-- REVIEW_JS -->", f"<script>{javascript}</script>")

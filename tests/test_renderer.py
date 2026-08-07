@@ -25,6 +25,21 @@ def load_example(name: str) -> dict[str, object]:
     return value
 
 
+def contrast_ratio(first: str, second: str) -> float:
+    def luminance(value: str) -> float:
+        channels = [int(value[index : index + 2], 16) / 255 for index in (1, 3, 5)]
+        linear = [
+            channel / 12.92
+            if channel <= 0.04045
+            else ((channel + 0.055) / 1.055) ** 2.4
+            for channel in channels
+        ]
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+    lighter, darker = sorted((luminance(first), luminance(second)), reverse=True)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
 class ReviewConsoleRenderTests(unittest.TestCase):
     def setUp(self) -> None:
         self.spec = review_console.default_spec()
@@ -51,20 +66,25 @@ class ReviewConsoleRenderTests(unittest.TestCase):
         for marker in (
             'class="workspace"',
             'class="review-rail"',
-            'class="review-main"',
+            'class="review-main" id="reviewMain" tabindex="-1"',
+            'class="skip-link" href="#reviewMain"',
             "class='decision-column'",
             'id="reviewSearch"',
             'id="queueFilter"',
             'id="stateFilter"',
-            'id="prevUndecided"',
-            'id="nextUndecided"',
+            'id="prevIncomplete"',
+            'id="nextIncomplete"',
+            'aria-keyshortcuts="Alt+J"',
             'id="themeSelect"',
             'aria-live="polite"',
-            "<fieldset class='decision-panel'>",
+            'role="progressbar"',
+            "<fieldset class='decision-panel' aria-describedby=",
             "prefers-reduced-motion",
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, output)
+        self.assertLess(output.index('id="reviewToolsTitle"'), output.index('id="reviewProgressTitle"'))
+        self.assertLess(output.index('id="reviewProgressTitle"'), output.index("id='queuesTitle'"))
 
     def test_uses_multi_select_by_default_and_single_select_only_when_declared(self) -> None:
         output = self.render()
@@ -150,6 +170,7 @@ class ReviewConsoleRenderTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, output)
         self.assertNotIn('aria-modal="true"', output)
+        self.assertNotIn("innerHTML", output)
 
     def test_applies_confirmed_palette_and_surviving_direction_contract(self) -> None:
         output = self.render()
@@ -171,6 +192,40 @@ class ReviewConsoleRenderTests(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, output)
 
+    def test_theme_tokens_meet_text_and_control_contrast(self) -> None:
+        output = self.render()
+        text_pairs = {
+            "light body": ("#201a1c", "#f8f6f7"),
+            "light muted": ("#6d6468", "#ffffff"),
+            "light primary": ("#ffffff", "#7a2e4d"),
+            "light warning": ("#7a4d00", "#fff3d3"),
+            "light danger": ("#b42318", "#fee4e2"),
+            "light risk": ("#7c4659", "#f7e9ee"),
+            "dark body": ("#faf5f7", "#171316"),
+            "dark muted": ("#c9bcc2", "#211b1f"),
+            "dark primary": ("#2a101a", "#f0a9c0"),
+            "dark warning": ("#ffd28a", "#392a14"),
+            "dark danger": ("#ffb4ab", "#3b1615"),
+            "dark risk": ("#e4a6ba", "#38262e"),
+        }
+        control_pairs = {
+            "light control boundary": ("#95858b", "#f3eff1"),
+            "dark control boundary": ("#806d77", "#2d252a"),
+            "light focus": ("#7a2e4d", "#f8f6f7"),
+            "dark focus": ("#f0a9c0", "#171316"),
+        }
+
+        for label, pair in text_pairs.items():
+            with self.subTest(label=label):
+                self.assertGreaterEqual(contrast_ratio(*pair), 4.5)
+                self.assertIn(pair[0], output)
+                self.assertIn(pair[1], output)
+        for label, pair in control_pairs.items():
+            with self.subTest(label=label):
+                self.assertGreaterEqual(contrast_ratio(*pair), 3.0)
+                self.assertIn(pair[0], output)
+                self.assertIn(pair[1], output)
+
     def test_embedded_json_survives_html_raw_text_tokenizer_sequences(self) -> None:
         hostile = "<!--<script></script><b>unsafe</b>\u2028next"
         self.data["example_items"][0]["description"] = hostile
@@ -178,7 +233,7 @@ class ReviewConsoleRenderTests(unittest.TestCase):
 
         self.assertIn(r"\u003c!--\u003cscript\u003e\u003c/script\u003e", output)
         self.assertNotIn(hostile, output)
-        self.assertIn("JSON.parse(raw.textContent)", output)
+        self.assertIn("JSON.parse(element.textContent)", output)
         self.assertEqual(
             script_json({"value": hostile}),
             r'{"value": "\u003c!--\u003cscript\u003e\u003c/script\u003e\u003cb\u003eunsafe\u003c/b\u003e\u2028next"}',
@@ -197,8 +252,8 @@ class ReviewConsoleRenderTests(unittest.TestCase):
         sanitized, error = review_console.sanitize_svg(source)
 
         self.assertIsNone(error)
-        self.assertIsNotNone(sanitized)
-        assert sanitized is not None
+        if sanitized is None:
+            self.fail("Expected the allowed SVG to be sanitized")
         self.assertIn("<title>Release path</title>", sanitized)
         self.assertIn('viewBox="0 0 120 60"', sanitized)
         self.assertNotIn("<script", sanitized)
@@ -305,6 +360,11 @@ class ReviewConsoleRenderTests(unittest.TestCase):
         ):
             with self.subTest(marker=marker):
                 self.assertIn(marker, output)
+        queue_navigation = output[
+            output.index("<nav class='queue-nav'") : output.index("</nav>", output.index("<nav class='queue-nav'"))
+        ]
+        self.assertIn("<strong id=\"progressCount\">0 of 2</strong> decisions complete", output)
+        self.assertNotIn("data-queue-progress='document-review'", queue_navigation)
 
     def test_planning_demo_covers_every_semantic_block_type(self) -> None:
         data = load_example("review-plan-data.json")
@@ -369,7 +429,7 @@ class ReviewConsoleRenderTests(unittest.TestCase):
         self.assertIn("A text-only explanation remains available.", output)
         self.assertNotIn(unsafe_url, output)
 
-    def test_refines_header_help_sidebar_metadata_and_risk_tone(self) -> None:
+    def test_refines_header_navigation_metadata_and_risk_tone(self) -> None:
         self.data["counts"] = {"example_items": 1, "custom_metric": 3}
         self.spec["queues"][0]["actions"].append(
             {"id": "close", "label": "Close permanently", "risk": "high"}
@@ -379,18 +439,22 @@ class ReviewConsoleRenderTests(unittest.TestCase):
         self.assertIn('id="aboutTrigger"', output)
         self.assertIn('aria-label="About this review"', output)
         self.assertIn('role="tooltip"', output)
-        self.assertIn('class="review-status">Review only</span>', output)
         self.assertIn('class="header-link"', output)
+        self.assertIn('>Summary</button>', output)
+        self.assertNotIn('Review only', output)
         self.assertNotIn('class="read-only-mark"', output)
         self.assertNotIn('<p class="subtitle">', output)
-        self.assertIn("@media (max-width: 1280px)", output)
-        self.assertIn("<summary>Review file details</summary>", output)
+        self.assertNotIn("@media (max-width: 1280px)", output)
+        self.assertIn("<summary>File details</summary>", output)
         header = output[output.index('<header class="app-header">') : output.index("</header>")]
         self.assertNotIn('id="themeSelect"', header)
+        self.assertNotIn('id="progressLabel"', header)
         self.assertNotIn("<dt>example items</dt>", output)
         self.assertIn("<dt>custom metric</dt>", output)
         self.assertIn("background: var(--risk-surface)", output)
         self.assertIn("border-color: var(--risk-border)", output)
+        self.assertIn("font-weight: 400", output)
+        self.assertIn("decisions complete", output)
 
     def test_embeds_versioned_identity_and_apache_runtime_license(self) -> None:
         output = self.render()
