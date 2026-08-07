@@ -1,5 +1,7 @@
 # Changelog
 
+<!-- markdownlint-disable MD024 -->
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
@@ -24,9 +26,21 @@ This project does not currently declare a Semantic Versioning policy.
   hostile raw-text data, mobile document review, focus return, and text reflow.
 - Add generated desktop and mobile screenshots with a standard-library capture
   script.
+- Add a WCAG 2.2 AA accessibility contract, contrast checks, target-size checks,
+  keyboard regressions, and a manual release checklist.
 
 ### Changed
 
+- Reorder decision-batch navigation around search, completion filters, and
+  incomplete-decision movement before overall and per-queue progress.
+- Remove duplicate header progress and review-status text, reduce summary
+  emphasis, and use complete or needs-a-decision language throughout the
+  generated workbench.
+- Count a substantive decision note as a complete response when no supplied
+  action fits. Note-only responses still export as annotations and never as
+  approved actions.
+- Document how agents should divide large evaluations into meaningful queues
+  that share context, a question, and an action set.
 - Reframe the public quick start around the agent-to-human review workflow and
   use checked-in inputs for runnable CLI examples.
 - Reserve exact UVX version pins for reproducibility, use the unversioned PyPI
@@ -50,6 +64,11 @@ This project does not currently declare a Semantic Versioning policy.
 
 ### Fixed
 
+- Replace bare character shortcuts with modifier shortcuts so review navigation
+  does not interfere with assistive technology or text input.
+- Add a skip link, named decision regions, live completion semantics, current
+  queue state, 24 CSS-pixel targets, and AA control-boundary contrast in both
+  themes.
 - Prevent decisions from an older artifact from inflating progress or appearing
   in a regenerated review export.
 - Encode embedded JSON safely for HTML raw-text parsing so source strings such

@@ -16,9 +16,14 @@
 
 ## Up Next
 
+- [ ] Manually validate queue and document reviews with VoiceOver, forced
+  colors, and 400% browser zoom [context: small]
+- [ ] Evaluate the category model with a representative 100-decision review
+  before adding batch-specific interactions [context: medium]
 - [ ] Run Ruff cleanup and decide whether Ruff belongs in CI
 - [ ] Show recommendation provenance and supporting evidence
-- [ ] Add operational risk, reversibility, evidence-strength, and ambiguity signals
+- [ ] Add operational risk, reversibility, evidence-strength, and ambiguity
+  signals
 - [ ] Add optional per-action confirmation friction
 - [ ] Import decision JSON with schema and snapshot compatibility checks
 
@@ -33,6 +38,11 @@
 
 ## Done
 
-- [x] Rearchitect and harden the pre-PyPI package, artifact contract, browser runtime, validation, accessibility, licensing, tests, and release automation
-- [x] Build the dependency-free Python CLI release candidate with UVX, CI, and a thin agent skill
-- [x] Publish the public README, generated screenshots, capture script, and changelog
+- [x] Redesign generated workbench hierarchy and accessibility (search-first
+  navigation, note completion, WCAG checks, docs, and screenshots)
+- [x] Rearchitect and harden the pre-PyPI package, artifact contract, browser
+  runtime, validation, accessibility, licensing, tests, and release automation
+- [x] Build the dependency-free Python CLI release candidate with UVX, CI, and a
+  thin agent skill
+- [x] Publish the public README, generated screenshots, capture script, and
+  changelog

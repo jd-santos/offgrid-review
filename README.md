@@ -49,8 +49,10 @@ question in chat.
 ### 3. Review and return the decisions
 
 Open the HTML file, compare the evidence, choose every compatible action, and
-add comments where needed. Use **Copy decisions** or **Download decisions** to
-return the JSON to your agent.
+add notes where needed. If the available actions miss your answer, add a
+decision note instead. Either an action or a substantive decision note marks the
+decision complete. Use **Copy decisions** or **Download decisions** to return
+the JSON to your agent.
 
 The apply pass should re-fetch current state, reject stale inputs, and perform
 only the actions recorded in that decision file.
@@ -80,9 +82,10 @@ pass handles mutation.
 ### Decision batches
 
 Reconciliation, triage, classification, prioritization, and other work with many
-related decisions can be grouped into one review. Each item can show evidence,
-comparisons, recommendations, risk, reversibility, compatible actions, and
-required rationale.
+related decisions can be grouped into one review. Queues divide a large review
+into meaningful categories that share context, a question, and an action set.
+Each decision can show evidence, comparisons, recommendations, risk,
+reversibility, compatible actions, and required rationale.
 
 ### Proposals and plans
 
@@ -184,6 +187,8 @@ for the complete input and decision formats.
 
 ## More screenshots
 
+<!-- markdownlint-disable MD033 -->
+
 <details>
 <summary>Decision batch, mobile, and contents navigation examples</summary>
 
@@ -201,20 +206,32 @@ for the complete input and decision formats.
 
 </details>
 
+<!-- markdownlint-enable MD033 -->
+
 ## Reference
 
-- [Usage guide](https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/reference/usage.md): commands, review
-  specifications, interaction behavior, and file-viewer constraints
-- [Artifact contract](https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/reference/artifact-contract.md):
-  source data, review specs, generated artifacts, annotations, and decision JSON
-- [Apply-pass guide](https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/reference/apply-pass.md): verification,
-  mutation boundaries, error handling, and reporting
-- [Product](https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/PRODUCT.md): purpose, users, constraints, and
-  product principles
-- [Design](https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/DESIGN.md): interface tokens, component rules,
-  responsive behavior, and accessibility expectations
-- [Release guide](https://github.com/jd-santos/offgrid-review/blob/main/docs/releasing.md): package checks and Trusted Publishing setup
-- [Changelog](https://github.com/jd-santos/offgrid-review/blob/main/CHANGELOG.md): notable project changes
+- [Usage guide][usage-guide]: commands, review specifications, interaction
+  behavior, and file-viewer constraints
+- [Artifact contract][artifact-contract]: source data, review specs, generated
+  artifacts, annotations, and decision JSON
+- [Apply-pass guide][apply-pass]: verification, mutation boundaries, error
+  handling, and reporting
+- [Product][product]: purpose, users, constraints, and product principles
+- [Design][design]: interface tokens, component rules, responsive behavior, and
+  accessibility expectations
+- [Accessibility checks][accessibility]: WCAG target, automated coverage, and
+  manual release checks
+- [Release guide][release-guide]: package checks and Trusted Publishing setup
+- [Changelog][changelog]: notable project changes
+
+[usage-guide]: https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/reference/usage.md
+[artifact-contract]: https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/reference/artifact-contract.md
+[apply-pass]: https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/reference/apply-pass.md
+[product]: https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/PRODUCT.md
+[design]: https://github.com/jd-santos/offgrid-review/blob/main/skills/offgrid-review/DESIGN.md
+[accessibility]: https://github.com/jd-santos/offgrid-review/blob/main/docs/accessibility.md
+[release-guide]: https://github.com/jd-santos/offgrid-review/blob/main/docs/releasing.md
+[changelog]: https://github.com/jd-santos/offgrid-review/blob/main/CHANGELOG.md
 
 ## Development
 
