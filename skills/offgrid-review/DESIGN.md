@@ -8,6 +8,7 @@ colors:
   text-light: "#201a1c"
   muted-light: "#6d6468"
   border-light: "#d8d0d3"
+  border-strong-light: "#95858b"
   blush-light: "#f4d8e1"
   blush-strong-light: "#e6b8c8"
   berry-light: "#7a2e4d"
@@ -17,6 +18,7 @@ colors:
   text-dark: "#faf5f7"
   muted-dark: "#c9bcc2"
   border-dark: "#453840"
+  border-strong-dark: "#806d77"
   blush-dark: "#4a2b36"
   berry-dark: "#f0a9c0"
   risk-light: "#7c4659"
@@ -44,7 +46,7 @@ typography:
   label:
     fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "0.75rem"
-    fontWeight: 700
+    fontWeight: 600
     lineHeight: 1.5
 rounded:
   state: "5px"
@@ -147,18 +149,24 @@ weight. Do not place a decorative kicker above it.
 
 ## Layout
 
-Desktop queue review uses three visible zones: a queue and filter rail, a
+Desktop queue review uses three visible zones: a review-navigation rail, a
 flexible evidence surface, and an item decision inspector. Document review uses
 the same rail and header around one continuous reading surface. The header holds
-the title, quiet review status, an authored question-mark help control, progress,
-a text summary action, and one
-filled export action. Theme selection lives in **Review file details**. Progress
-moves to its own row at 1280 pixels before controls can collide.
+the title, an authored question-mark help control, a quiet summary action, and
+one filled export action. It does not repeat completion information already
+available in review navigation.
+
+For decision batches, the rail follows the reviewer's task order: find a
+decision, see overall progress, then move between queues. Search, filters, and
+incomplete-decision navigation come before the queue list. Queue fractions stay
+quiet; the aggregate progress value carries the stronger emphasis. Document-only
+reviews omit search and queues, then pair aggregate decision progress with
+contents navigation. Theme selection lives in **File details**.
 
 The rail becomes a horizontal control region below the header on medium
 screens. Below the mobile breakpoint, cards become one column and the active
-item's decision inspector moves into a persistent bottom action tray. Search,
-filters, and queue navigation remain explicit.
+decision inspector moves into a persistent bottom action tray. Search, filters,
+and queue navigation remain explicit.
 
 Use tighter spacing inside questions and options. Use larger separation between
 queues, plan sections, and unrelated review tasks.
@@ -209,8 +217,9 @@ selection. Red remains available for validation errors and urgent danger.
 
 A card joins evidence and its decision inspector in one bordered surface. The
 evidence side contains visible primary facts, expandable supporting details,
-raw source data, plan sections, and the item note. Do not nest decorative cards
-inside it.
+raw source data, and plan sections. The decision note sits with the action
+options so a reviewer can answer when none of those options fit. Do not nest
+decorative cards inside the card.
 
 ### Semantic document blocks
 
@@ -226,16 +235,52 @@ Rejected graphics show a useful error without suppressing the fallback.
 
 ### Navigation
 
-Queue links show resolved counts and use blush only for the current or hovered
-queue. Document reviews show **On this page** links in the desktop rail, with
-the current section emphasized. At 1120 pixels and below, a floating authored
-list icon opens those links in a nonmodal contents drawer above the action tray.
-Document-only reviews omit redundant queue and item
-filters. Review-file metadata and theme selection live in one disclosure below
-navigation. Previous and next unresolved controls preserve the same wording on
-every breakpoint. Mobile navigation follows the active item in the bottom tray.
-Grid children use shrinkable tracks and `min-width: 0` where needed so document
-content reflows at 200 percent text scaling instead of being clipped.
+The review is the complete generated artifact. A queue is a meaningful group of
+related decisions, and each item or decision block asks for one human judgment.
+Visible labels and progress text must preserve that distinction.
+
+Queue links show completed fractions in regular-weight tabular numerals and use
+blush only for the current or hovered queue. Aggregate progress reads “decisions
+complete.” A substantive decision, action, or plan-section note completes its
+own decision even when no action is selected. Note-only completion exports as
+feedback, not as approval to mutate the source system.
+
+Search, queue filtering, completion filtering, and **Needs a decision**
+navigation appear before queue links. The buttons use the short labels
+**Previous** and **Next** because their surrounding heading supplies the
+context. Modifier shortcuts are `Alt+/`, `Alt+J`, and `Alt+K`; do not add bare
+character shortcuts that can interfere with assistive technology or speech
+input.
+
+Document reviews show **On this page** links in the desktop rail, with the
+current section emphasized. At 1120 pixels and below, a floating authored list
+icon opens those links in a nonmodal contents drawer above the action tray.
+Document-only reviews omit queue and item filters. File metadata and theme
+selection live in one disclosure below navigation. Mobile navigation follows
+the active decision in the bottom tray. Grid children use shrinkable tracks and
+`min-width: 0` where needed so document content reflows at 200 percent text
+scaling instead of being clipped.
+
+## Accessibility
+
+WCAG 2.2 AA is the target for generated workbenches. Every pass must preserve:
+
+- A skip link, named landmarks, ordered headings, and explicit accessible names.
+- Native controls, fieldset legends, adjacent instructions, and text state that
+  does not depend on color.
+- Keyboard access without bare single-character shortcuts.
+- Visible three-pixel focus outlines and focus return from nonmodal surfaces.
+- Minimum 24 by 24 CSS-pixel targets, including labels associated with native
+  checkbox and radio controls.
+- Text and control-boundary contrast at AA thresholds in both themes.
+- Status announcements for filtering, completion, conflicts, storage, and
+  exports without moving focus unexpectedly.
+- Reflow at 320 CSS pixels and at 200 percent text size without two-dimensional
+  page scrolling.
+- Reduced-motion behavior for progress, scrolling, trays, and notifications.
+
+Automated browser coverage checks these contracts, but it does not replace
+manual assistive-technology testing before a stable release.
 
 ## Design basis
 
@@ -256,7 +301,7 @@ the usability floor without determining the visual styling.
 - **Do** choose the structured visual block that matches the review question.
 - **Do** preserve a visible text path for every visual.
 - **Do** reserve the strongest berry fill for primary review actions.
-- **Do** keep header utilities quiet so progress and export remain dominant.
+- **Do** keep header utilities quiet so export remains the only filled action.
 
 ### Don't
 

@@ -135,6 +135,28 @@ action and block IDs must be unique in their scopes, conflict references must
 resolve, and queue sources must be arrays. Expected failures return exit code 2
 with JSON-path errors instead of a traceback. Each input file has a 25 MB limit.
 
+## Framing large reviews
+
+Queues are the reviewer-facing categories inside a decision batch. Group items
+that share context, a question, and an action set. Do not use queues as arbitrary
+pagination.
+
+For an evaluation with roughly 100 decisions:
+
+1. Start with 5–10 categories based on decision type, source, risk, area of
+   responsibility, or the context needed to answer well.
+2. Put high-value and high-risk queues first. Keep lower-priority cleanup from
+   obscuring decisions that deserve more attention.
+3. Write one concrete question and description per queue. If half the items need
+   a different question, split the queue.
+4. Keep enough evidence visible to decide without opening raw source data for
+   every item.
+5. Offer likely actions, but do not force a poor fit. A decision note is a valid
+   complete response when the proposed actions miss the reviewer’s intent.
+
+Prefer a few meaningful queues over dozens of tiny ones. Prefer separate review
+artifacts when categories have unrelated goals, audiences, or apply boundaries.
+
 ## Selection behavior
 
 Use `selection_mode: "multiple"` unless the domain permits exactly one answer.
@@ -157,7 +179,7 @@ for the reviewer:
 }
 ```
 
-Conflicts remain visible and make the export invalid until resolved.
+Conflicts remain visible and make the export invalid until corrected.
 
 ## Action metadata
 
@@ -176,9 +198,14 @@ urgent danger.
 
 ## Granular notes
 
-Every item includes a general note. Each action includes a progressively
-revealed note field. Queue-item plan sections and top-level document blocks
-receive their own comment controls when they have stable IDs.
+Every decision includes a note beside its actions. Each action also includes a
+progressively revealed note field. Queue-item plan sections and top-level
+document blocks receive their own comment controls when they have stable IDs.
+
+A selected action or any substantive note attached to a decision marks that
+decision complete. If no action is selected, the response exports in
+`annotations` rather than `decisions`. It tells the agent that the reviewer has
+answered, but it does not authorize the apply pass to mutate the source system.
 
 The exported entry contains:
 
@@ -320,25 +347,28 @@ complete document demo.
 
 The workbench includes:
 
-- Queue navigation and per-queue progress.
+- Search over titles, evidence, and action labels.
+- Queue and completion filters.
+- **Needs a decision** navigation with short **Previous** and **Next** controls.
+- Overall completion followed by quiet per-queue completion fractions.
+- Queue navigation that marks the current queue.
 - **On this page** links for semantic documents, with current-section state.
 - A floating list control at 1120 pixels and below that opens a nonmodal
   contents drawer above the mobile action tray.
-- Document-only navigation that omits irrelevant item search and filters.
-- Search over titles, evidence, and action labels.
-- Queue and resolved-state filters.
-- Previous and next unresolved controls.
-- `/` to focus search.
-- `J` and `K` to move between unresolved items.
-- A mobile action tray that follows the current item.
+- Document-only navigation that omits queue search and filters.
+- `Alt+/` to focus search.
+- `Alt+J` and `Alt+K` to move between decisions that still need an answer.
+- A mobile action tray that follows the current decision.
 - A nonmodal review summary.
 
-Native controls, visible focus, semantic field grouping, live status messages,
-and reduced-motion support are built in.
+Native controls, a skip link, visible focus, semantic field grouping, live
+status messages, 24 CSS-pixel targets, 200 percent text reflow, and
+reduced-motion support are built in. Generated workbenches target WCAG 2.2 AA;
+manual assistive-technology checks remain part of release validation.
 
 ## Themes
 
-The console follows the system theme by default. **Review file details** offers
+The console follows the system theme by default. **File details** offers
 explicit System, Light, and Dark choices. The override uses browser storage when
 available. Both themes keep blush for selection and annotation, muted plum for
 risk, and red for validation errors or urgent danger.
@@ -352,12 +382,12 @@ fingerprints when deciding whether source data is stale.
 
 The summary reports:
 
-- Resolved and unresolved items.
+- Complete decisions and decisions that still need an answer.
 - Counts by selected action.
 - High-risk and irreversible actions.
 - Conflicts.
 - Missing required rationale.
-- Items containing notes.
+- Notes added across decisions and document blocks.
 
 Export is gated when any warning remains. The reviewer can still export from
 the summary, but the JSON preserves `complete`, `valid`, and `warnings` so the
@@ -373,7 +403,7 @@ selection, `action` and `label` are also populated for older apply scripts.
 - `storage_key`: browser storage namespace override. The generator appends the
   schema version and review ID.
 - `download_prefix`: downloaded filename prefix.
-- `note_label`: item-note label.
+- `note_label`: label for the decision note beside the action options.
 - `agent_help`: short visible workflow instruction.
 - `document_id`, `document_title`, `document_description`: planning-document
   framing.

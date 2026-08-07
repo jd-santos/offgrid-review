@@ -72,13 +72,13 @@ in-session in those environments.
 
 Current capabilities include decision batches implemented through queues,
 complete document review, multi-select and explicit single-select actions,
-item, action, section, and block notes, record comparisons, semantic document
-blocks, generated SVG flows and graphs, charts with source tables, sanitized
-custom SVG, search, filtering, keyboard navigation, accessible on-demand help,
-responsive document contents, light and dark themes, responsive mobile actions,
-review summaries, risk-aware pre-export checks, artifact-scoped local
-persistence when available, path-aware input validation, versioned artifact
-identity, and decision JSON export.
+decision, action, section, and block notes, note-only completion, record
+comparisons, semantic document blocks, generated SVG flows and graphs, charts
+with source tables, sanitized custom SVG, search-first filtering, incomplete-
+decision navigation, accessible on-demand help, responsive document contents,
+light and dark themes, responsive mobile actions, review summaries, risk-aware
+pre-export checks, artifact-scoped local persistence when available, path-aware
+input validation, versioned artifact identity, and decision JSON export.
 
 The implementation is distributed as a Python CLI. Validation, identity, queue
 rendering, document rendering, SVG handling, page assembly, and the browser
@@ -164,7 +164,8 @@ hand. Future work must not invent them.
 1. **Make human judgment easy to express.** The interface should reduce the
    effort of reviewing many agent-prepared questions without reducing the
    quality of the answer. Compatible actions may coexist; single-choice review
-   is an explicit fallback.
+   is an explicit fallback. Large reviews should be divided into meaningful
+   queues that share context and a question, not arbitrary batches.
 2. **Keep review separate from application.** A captured decision is an
    approval artifact, not an immediate mutation.
 3. **Portability comes first.** A generated console should survive handoff
@@ -180,10 +181,13 @@ hand. Future work must not invent them.
 
 ## Accessibility & Inclusion
 
-Preserve keyboard navigation, visible focus states, assistive-technology state
-exposure, live status updates, and reduced-motion support.
+Generated workbenches target WCAG 2.2 AA. Preserve a skip link, named
+landmarks, keyboard navigation, visible focus states, assistive-technology state
+exposure, live status updates, minimum target sizes, 200 percent text reflow,
+and reduced-motion support. Bare character shortcuts are not allowed.
 
 The console must remain understandable without relying on color alone.
 Interactive controls should look interactive, informational labels should not
 imitate controls, and risky or irreversible actions should be explicit before
-selection.
+selection. Automated checks protect the baseline, while stable releases still
+require manual assistive-technology validation.

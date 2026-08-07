@@ -13,13 +13,15 @@ Require all of the following:
   `artifact_fingerprint` are present and well-formed.
 - The artifact fingerprint matches the schema and source fingerprints in the
   export.
-- `valid` is `true`, or a human explicitly resolved each warning.
+- `valid` is `true`, or a human explicitly addressed each warning.
 - The apply implementation understands every selected action ID.
 - Annotation-only entries, including document-block comments, are not treated
   as decisions.
 
 An incomplete export may still contain approved decisions, but the apply pass
-must report that the review was partial.
+must report that the review was partial. A complete export may still contain
+note-only responses with no approved action. Preserve that feedback without
+inferring a mutation.
 
 ## Core rules
 

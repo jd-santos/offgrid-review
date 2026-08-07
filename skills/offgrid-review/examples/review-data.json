@@ -56,8 +56,8 @@
           "kind": "table",
           "columns": ["State", "Meaning", "Export behavior"],
           "rows": [
-            ["Unresolved", "No action selected", "Warn before export"],
-            ["Resolved", "One or more compatible actions selected", "Include in decisions"],
+            ["Needs a decision", "No action or decision note", "Warn before export"],
+            ["Complete", "An action or substantive note was recorded", "Export as a decision or annotation"],
             ["Conflict", "Selected actions contradict", "Mark export invalid"]
           ]
         },

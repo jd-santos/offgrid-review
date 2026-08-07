@@ -14,7 +14,7 @@
     {
       "id": "defer",
       "label": "Defer for later",
-      "description": "Leave the proposal unresolved for a future review.",
+      "description": "Leave the proposal for a future review.",
       "exclusive": true
     },
     {
@@ -69,7 +69,7 @@
       "type": "decision",
       "id": "direction",
       "title": "Direction decision",
-      "body": "Choose every outcome that should return to the agent. Conflicting choices remain visible until resolved.",
+      "body": "Choose every outcome that should return to the agent. Conflicting choices remain visible until corrected.",
       "question": "What should happen with this proposal?",
       "selection_mode": "multiple",
       "actions": [

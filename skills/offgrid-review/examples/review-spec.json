@@ -1,12 +1,12 @@
 {
   "title": "Offgrid Review",
   "review_id": "queue-example",
-  "subtitle": "Review the evidence, select every compatible action, and export decision JSON. Nothing is changed from this page.",
+  "subtitle": "Review the evidence, select compatible actions or add decision notes, and export decision JSON. Nothing is changed from this page.",
   "global_actions": [
     {
       "id": "defer",
       "label": "Defer for later",
-      "description": "Leave the item unresolved for a future review.",
+      "description": "Leave the item for a future review.",
       "exclusive": true
     },
     {
@@ -26,7 +26,7 @@
     {
       "id": "pending_decisions",
       "title": "Pending decisions",
-      "description": "Review each item and select every compatible follow-up.",
+      "description": "Decide which proposals move forward, need changes, or require follow-up.",
       "source": "pending_items",
       "empty": "Nothing to review in this queue.",
       "question": "Which actions should be taken?",

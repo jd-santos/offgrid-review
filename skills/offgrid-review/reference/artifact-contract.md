@@ -56,7 +56,7 @@ The spec frames the current review. The generator is not the intelligence.
 - `blocks`: optional semantic planning-document sections.
 - `global_actions`: outcomes available on every queue item and document
   decision.
-- `note_label`: label for the item-level note.
+- `note_label`: label for the decision-level note beside the action options.
 - `storage_key`: optional browser-storage namespace override. The schema
   version and review ID are appended.
 - `download_prefix`: optional decision filename prefix.
@@ -179,10 +179,10 @@ Properties:
 - Native checkbox and radio controls with semantic grouping.
 - Item, action, plan-section, and document-block annotations.
 - Accessible on-demand review context beside the title.
-- One visually dominant header action, with theme selection in review-file
-  details.
+- One visually dominant header action, with theme selection in file details.
 - System, light, and dark theme selection.
-- Queue navigation, search, state filters, progress, and keyboard shortcuts.
+- Search-first review navigation, queue and completion filters, aggregate and
+  per-queue progress, and modifier-key shortcuts.
 - Stable document-block anchors and responsive contents navigation. Document-only
   reviews omit item-specific queue, search, and state controls.
 - Local browser persistence when available, with session-only fallback.
@@ -247,18 +247,21 @@ apply implementation must reject unsupported schemas instead of guessing.
 and `label` are populated when exactly one action is selected. Both are `null`
 for a multi-action decision.
 
-`complete` means every item has at least one selected action. `valid` means no
-selected action conflicts or required rationale notes remain. `warnings`
-explains incomplete, risky, or invalid states.
+`complete` means every queue item and document decision block has at least one
+selected action or one substantive note. `valid` means no selected action
+conflicts or required rationale notes remain. `warnings` explains incomplete,
+risky, or invalid states.
 
-Notes on items or document blocks without a selected action are exported
-separately in `annotations`. Document block annotation IDs use
+Notes on decisions or document blocks without a selected action are exported
+separately in `annotations`. A note-only response can complete its associated
+queue item or document decision block, but it remains feedback rather than an
+approved action. Document block annotation IDs use
 `<document_id>:<block_id>`. Their `item` snapshot contains the block metadata
 and content, except original custom SVG source. Apply code must not treat any
 annotation entry as approval.
 
-`complete` counts queue items and document decision blocks. Informational
-blocks and annotation-only feedback do not make a review incomplete.
+`complete` counts queue items and document decision blocks. Notes on
+informational document blocks do not affect completion.
 
 The HTML and decision export contain source snapshots. Fields hidden behind a
 disclosure remain present in the file. Preparers must exclude secrets and

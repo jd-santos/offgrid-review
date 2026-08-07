@@ -6,7 +6,7 @@ description: >-
   compare items, annotate a proposal, or decide the direction of a plan. The
   workbench captures machine-readable decisions without applying them; a
   separate verified pass makes changes later.
-version: 1.2.0
+version: 1.3.0
 author: JD Santos
 category: workflow
 allowed-tools: Bash(uvx --from git+https://github.com/jd-santos/offgrid-review.git offgrid-review *), Bash(uvx offgrid-review@* *), Bash(uvx offgrid-review *), Read
@@ -87,10 +87,23 @@ This is where the judgment goes: what should be asked this time. Add `title`,
 `queues`, semantic `blocks`, or both.
 
 Each queue defines its source, evidence fields, question, selection mode, and
-actions. Document blocks compose overview, prose, table, flow, timeline,
-dependency graph, chart, constrained SVG, and decision sections. Multi-select
-is the default. Use single-select only for truly exclusive outcomes. Actions
-can declare risk, reversibility, required rationale, exclusivity, and conflicts.
+actions. A queue should group decisions that share context and ask the same
+kind of question. For a large evaluation, organize the review into meaningful
+categories before generating it. A set of 100 decisions might start as 5–10
+queues based on decision type, risk, source, or area of responsibility. Do not
+split work into arbitrary batches only to make the numbers smaller.
+
+Keep each queue scannable, order higher-value or higher-risk queues first, and
+write a concrete queue description. If different items need different questions
+or action sets, they belong in different queues. Always leave a path for an
+answer the options did not anticipate. A reviewer can add a decision note, which
+counts as a complete response and exports as feedback rather than an approved
+action.
+
+Document blocks compose overview, prose, table, flow, timeline, dependency
+graph, chart, constrained SVG, and decision sections. Multi-select is the
+default. Use single-select only for truly exclusive outcomes. Actions can
+declare risk, reversibility, required rationale, exclusivity, and conflicts.
 
 Prefer semantic visual blocks over custom SVG. Every visual must retain its
 visible text alternative. Custom SVG must pass the built-in allowlist sanitizer
@@ -120,8 +133,12 @@ unsupported.
 ### 4. Human reviews and exports decisions
 
 Open the HTML, inspect the evidence, select every compatible action, and add
-notes at the item, action, plan-section, or document-block level. Complete
-planning documents receive responsive contents navigation automatically. The
+notes at the decision, action, plan-section, or document-block level. If the
+actions do not express the intended answer, add a decision note instead. An
+action or substantive decision note marks that decision complete. Note-only
+responses remain feedback and do not authorize the apply pass to mutate the
+source system. Complete planning documents receive responsive contents
+navigation automatically. The
 console stores review state in `localStorage` when the viewer allows it and
 falls back to in-session state otherwise. Saved state is scoped to a review ID
 and loaded only when its schema and artifact fingerprint match. A visible
